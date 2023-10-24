@@ -46,9 +46,11 @@ build/Release
 node_modules/
 jspm_packages/
 dist/
+yarn.lock
+package-lock.json
 
-# Snowpack dependency directory (https://snowpack.dev/)
-web_modules/
+# Prisma
+prisma/migrations/
 
 # TypeScript cache
 *.tsbuildinfo
