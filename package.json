@@ -1,0 +1,22 @@
+{
+    "name": "startingmusic",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "author": "",
+    "license": "MIT",
+    "scripts": {
+        "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules src/server.ts",
+        "build": "tsc"
+    },
+    "dependencies": {
+        "@prisma/client": "^5.4.2",
+        "express": "^4.18.2",
+        "prisma": "^5.4.2"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.20",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.2.2"
+    }
+}
