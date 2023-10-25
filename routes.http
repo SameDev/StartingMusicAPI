@@ -1,4 +1,4 @@
-POST http://localhost:3333/user
+POST http://localhost:3333/user/
 Content-Type: application/json
 
 {
@@ -6,3 +6,9 @@ Content-Type: application/json
     "email": "asdads@fdfdf.com",
     "post": "Primeiro Post"
 }
+### 
+GET http://localhost:3333/
+Content-Type: application/json
+
+###
+GET http://localhost:3333/user/123
