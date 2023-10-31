@@ -1,14 +1,43 @@
-POST http://localhost:3333/user/
+POST http://localhost:3333/music/create
 Content-Type: application/json
 
 {
-    "nome": "Samuel",
-    "email": "asdads@fdfdf.com",
-    "post": "Primeiro Post"
+    "userId": 1,
+    "nome": "Lança Perfume",
+    "artista": "Rita Lee",
+    "url": "https://test.samedev.repl.co/l3342f3343243_23.mp3",
+    "duracao": 5.10,
+    "tags": [1, 2],
+    "imageUrl": "https://images.genius.com/c59245dcb9e8dff3bfa6e5f47c6703bb.600x600x1.jpg",
+    "artistaId": [1]
 }
 ### 
-GET http://localhost:3333/
+GET http://localhost:3333/music
+Content-Type: application/json
+
+### 
+GET http://localhost:3333/music/10
 Content-Type: application/json
 
 ###
-GET http://localhost:3333/user/123
+GET http://localhost:3333/user/1
+
+### 
+POST http://localhost:3333/user/login
+Content-Type: application/json
+
+{
+    "email": "conradtsamuel11@gmail.com",
+    "senha": "1234567"
+}
+
+### 
+POST http://localhost:3333/user/register
+Content-Type: application/json
+
+{
+    "nome": "Samuel Conradt",
+    "email": "conradtsamuel11@gmail.com",
+    "senha": "1234567",
+    "data_nasc": "2006-11-16T00:00:00.000Z"
+}

@@ -1,25 +1,69 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User?   @relation(fields: [authorId], references: [id])
-  authorId  Int?
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id          Int        @id @default(autoincrement())
+  email       String     @unique
+  nome        String?
+  cargo       Cargo      @default(USUARIO)
+  foto_perfil String?    @db.VarChar(30)
+  data_nasc   DateTime
+  senha       String
+  playlist    Playlist[]
+  musica      Music[]    @relation("MusicToUser")
+  tags        Tags[]     @relation("TagsToUser")
+
+  @@map("tb_usuario")
+}
+
+model Tags {
+  id       Int        @id @default(autoincrement())
+  nome     String     @unique
+  musicas  Music[]    @relation("MusicToTags")
+  playlist Playlist[] @relation("PlaylistToTags")
+  usuario  User[]     @relation("TagsToUser")
+
+  @@map("tb_tags")
+}
+
+model Music {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  artista   String
+  url       String
+  duracao   Float
+  data_lanc DateTime
+  image_url String?
+  playlist  Playlist[] @relation("MusicToPlaylist")
+  tags      Tags[]     @relation("MusicToTags")
+  artistaId User[]     @relation("MusicToUser")
+
+  @@map("tb_musicas")
+}
+
+model Playlist {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  descricao String?
+  foto      String?
+  data      DateTime
+  userId    Int
+  criador   User     @relation(fields: [userId], references: [id])
+  musicas   Music[]  @relation("MusicToPlaylist")
+  tags      Tags[]   @relation("PlaylistToTags")
+
+  @@map("tb_playlists")
+}
+
+enum Cargo {
+  USUARIO
+  ADMIN
+  ARTISTA
 }
