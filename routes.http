@@ -1,24 +1,44 @@
 POST http://localhost:3333/music/create
 Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNjk5MDMwNTI0LCJleHAiOjE2OTkwNTkzMjR9.1sk5T6am5R3pShrQPj3Nmy2D2IuJFphcJ7HzDGdWHj8
 
 {
     "userId": 1,
     "nome": "Lança Perfume",
     "artista": "Rita Lee",
     "url": "https://test.samedev.repl.co/l3342f3343243_23.mp3",
-    "duracao": 5.10,
+    "duracao": "5:10",
     "tags": [1, 2],
     "imageUrl": "https://images.genius.com/c59245dcb9e8dff3bfa6e5f47c6703bb.600x600x1.jpg",
     "artistaId": [1]
 }
+
+###
+POST http://localhost:3333/music/update/22
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNjk5MDMwNTI0LCJleHAiOjE2OTkwNTkzMjR9.1sk5T6am5R3pShrQPj3Nmy2D2IuJFphcJ7HzDGdWHj8
+
+{
+    "userId": 1,
+    "nome": "Lança Perfume",
+    "artista": "Rita Lee",
+    "url": "https://test.samedev.repl.co/l3342f3343243_23.mp3",
+    "imageUrl": "https://images.genius.com/c59245dcb9e8dff3bfa6e5f47c6703bb.600x600x1.jpg",
+    "artistaId": [1]
+}
+
 ### 
 GET http://localhost:3333/music
 Content-Type: application/json
 
 ### 
-GET http://localhost:3333/music/10
+GET http://localhost:3333/music/22
 Content-Type: application/json
 
+###
+DELETE http://localhost:3333/music/delete/21
+Content-Type: application/json
+Authorization: 
 ###
 GET http://localhost:3333/user/1
 
@@ -36,8 +56,20 @@ POST http://localhost:3333/user/register
 Content-Type: application/json
 
 {
-    "nome": "Samuel Conradt",
-    "email": "conradtsamuel11@gmail.com",
+    "nome": "Alisson",
+    "email": "alissongselau@gmail.com",
     "senha": "1234567",
     "data_nasc": "2006-11-16T00:00:00.000Z"
+}
+
+### 
+POST http://localhost:3333/user/update/1
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTY5OTAxNzY1OSwiZXhwIjoxNjk5MDQ2NDU5fQ.B_CuG_j9yTLXEEI4ycg_mW6MYqqX1xJBUKWWUWvmEMs
+
+{
+    "nome": "Samuel Conradt",
+    "email": "conradtsamuel@gmail.com",
+    "cargo": "ADMIN",
+    "data_nasc": "2006-12-16T00:00:00.000Z"
 }

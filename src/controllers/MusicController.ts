@@ -1,102 +1,285 @@
 import { Request, Response } from "express";
-import getUserByIdDB  from "../functions/userFunctions";
 import prisma from "../database";
+import jwt from "jsonwebtoken";
+import {
+  UnauthorizedError,
+  BadRequestError,
+  NotFoundError,
+  ApiError,
+} from "../helpers/api-erros";
 
 class MusicController {
   uploadMusic(req: Request, res: Response) {
-    const { userId, nome, artista, artistaId, url, duracao, tags, imageUrl } = req.body;
+    const { nome, artista, artistaId, url, duracao, tags, imageUrl } = req.body;
 
-    getUserByIdDB(userId, res)
-      .then((user) => {
-        if (user?.cargo == "USUARIO") {
-          res.send({ Error: "Você não Possui permissões para esta ação!" });
-        } else {
-          const dateNow = Date.now();
-          const dataAtual = new Date(dateNow);
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido");
+    }
 
-          if( typeof artistaId != "object") {
-            return res.status(406).json({ Error: "Tipo de dado incorreto, use um array" });
-          }
+    jwt.verify(token, process.env.JWT_PASS ?? "", (err, decoded) => {
+      if (err) {
+        console.error(err);
+        throw new UnauthorizedError("Token inválido");
+      }
+      if (decoded && decoded.cargo) {
+        const userCargo = decoded.cargo;
+        console.log(userCargo);
 
-          prisma.music.create({
-            data: {
-              nome,
-              artista,
-              url,
-              duracao,
-              data_lanc: dataAtual.toISOString(),
-              image_url: imageUrl,
-              artistaId: {
-                connect: artistaId.map((idArtista: object) => ({ id: idArtista })) 
-              },
-              tags: {
-                connect: tags.map((tagId: object) => ({ id: tagId }))
+        if (userCargo === "USUARIO") {
+          throw new UnauthorizedError("Você não possui permissões para esta ação!");
+        }
+      } else {
+        console.log(decoded);
+        throw new UnauthorizedError("Token inválido");
+      }
+
+      const dateNow = Date.now();
+      const dataAtual = new Date(dateNow);
+
+      if (typeof artistaId != "object") {
+        throw new BadRequestError("Tipo de dado incorreto para artistaId, use um array");
+      }
+      if (typeof tags != "object") {
+        throw new BadRequestError("Tipo de dado incorreto para tags, use um array");
+      }
+
+      prisma.music
+        .create({
+          data: {
+            nome,
+            artista,
+            url,
+            duracao,
+            data_lanc: dataAtual.toISOString(),
+            image_url: imageUrl,
+            artistaId: {
+              connect: artistaId.map((idArtista: object) => ({
+                id: idArtista,
+              })),
+            },
+            tags: {
+              connect: tags.map((tagId: object) => ({ id: tagId }),
+              ),
+            },
+          },
+        })
+        .then((music) => {
+          res
+            .status(201)
+            .json({ message: "Música criada com sucesso!", music: music });
+          console.dir(music);
+        })
+        .catch((error) => {
+          console.error(error);
+          throw new ApiError("Não foi possível criar a música", 500);
+        });
+    });
+  }
+
+  async updateMusic(req: Request, res: Response) {
+    const songId = req.params.id;
+    const id = parseInt(songId, 10);
+
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido");
+    }
+
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded) => {
+      if (err) {
+        console.error(err);
+        throw new UnauthorizedError("Token inválido");
+      }
+
+      if (decoded && decoded.cargo) {
+        const userCargo = decoded.cargo;
+        console.log(userCargo);
+
+        if (userCargo === "USUARIO") {
+          throw new UnauthorizedError("Você não possui permissões para esta ação!");
+        }
+      } else {
+        console.log(decoded);
+        throw new UnauthorizedError("Token inválido");
+      }
+
+      try {
+        const music = await prisma.music.findUnique({
+          where: {
+            id
+          },
+          include: {
+            tags: true,
+            artistaId: {
+              select: {
+                id: true
               }
             }
-          })
-            .then((music) => {
-              res.status(201).json({ message: "Musica criada com sucesso!", music: music });
-              console.dir(music);
-            })
-            .catch((Error)=>{
-              res.send({ Error: "Não foi possivel criar a música"});
-              console.log(Error);
-            });
+          }
+        });
+
+        if (!music) {
+          throw new ApiError("Música não encontrada, verifique se passou o ID corretamente!", 404);
         }
-      })
-      .catch((error) => {
-      // Lide com erros, se houver algum.
-        console.error(error);
-        res.status(500).json({ Error: "Erro interno" });
-      });
+
+        const {
+          nome, artista, url, duracao, imageUrl, data_lanc, artistaId, tags
+        } = req.body;
+
+        const dataToUpdate: Record<string, any> = {};
+
+        if (nome) dataToUpdate.nome = nome;
+        if (artista) dataToUpdate.artista = artista;
+        if (url) dataToUpdate.url = url;
+        if (duracao) dataToUpdate.duracao = duracao;
+        if (imageUrl) dataToUpdate.image_url = imageUrl;
+        if (data_lanc) dataToUpdate.data_lanc = data_lanc;
+        if (artistaId) dataToUpdate.artistaId = { connect: artistaId.map((idArtista: object) => ({ id: idArtista })) };
+        if (tags) dataToUpdate.tags = { connect: tags.map((tagId: object) => ({ id: tagId })) };
+
+        const updatedMusic = await prisma.music.update({
+          where: { id },
+          data: dataToUpdate,
+          include: {
+            tags: true,
+            playlist: true,
+            artistaId: {
+              select: {
+                id: true
+              }
+            }
+          }
+        });
+
+        res.status(201).json({ message: "Música atualizada com sucesso!", music: updatedMusic });
+      } catch (error) {
+        if (error instanceof ApiError) {
+          res.status(error.statusCode).json({ message: error.message });
+        } else {
+          console.error(error);
+          throw new ApiError("Não foi possível atualizar a música", 500);
+        }
+      }
+    });
   }
 
   listAllSongs(req: Request, res: Response) {
-    prisma.music.findMany({
-      include: {
-        tags: true,
-        artistaId: {
-          select: {
-            id: true
-          }
+    prisma.music
+      .findMany({
+        include: {
+          tags: true,
+          artistaId: {
+            select: {
+              id: true,
+            },
+          },
+          playlist: true,
         },
-        playlist: true
-      }
-    })
+      })
       .then((songs) => {
         const musicas = Object.assign({}, songs);
-        res.send({ songs: musicas});
+        res.send({ songs: musicas });
         console.dir(songs);
+      })
+      .catch((error) => {
+        console.error(error);
+        throw new ApiError("Erro de requisição", 500);
       });
   }
 
-  getMusicById(req: Request, res: Response) {
+  async getMusicById(req: Request, res: Response) {
     const id = req.params.id;
     const musicId = parseInt(id, 10);
 
-
-    prisma.music.findUnique({
-      where: {
-        id: musicId
-      },
-      include: {
-        playlist: true,
-        artistaId: {
-          select: {
-            id: true
-          }
+    try {
+      const music = await prisma.music.findUnique({
+        where: {
+          id: musicId,
         },
-        tags: true
+        include: {
+          playlist: true,
+          artistaId: {
+            select: {
+              id: true,
+            },
+          },
+          tags: true,
+        },
+      });
+
+      if (!music) {
+        throw new NotFoundError("Música não encontrada, verifique o ID");
       }
-    }).then((music) => {
-      if (music) {
-        res.send({ Message: "Música encontrada com sucesso", Musica: music });
+
+      res.send({ Message: "Música encontrada com sucesso", music: music });
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ Error: error.message });
+      } else if (error instanceof ApiError) {
+        res.status(500).json({ Error: error.message });
       } else {
-        res.status(400).json({ Error: "Música não encontrada" });
+        console.error(error);
+        res.status(500).json({ Error: "Erro de requisição" });
       }
-    }).catch((error) => {
-      res.status(400).json({ Error: "Erro de requisição" });
-      console.error(error);
+    }
+  }
+
+  async deleteMusic(req: Request, res: Response) {
+    const id = req.params.id;
+    const musicId = parseInt(id, 10);
+
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido");
+    }
+
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded) => {
+      if (err) {
+        console.error(err);
+        throw new UnauthorizedError("Token inválido");
+      }
+
+      if (decoded && decoded.cargo) {
+        const userCargo = decoded.cargo;
+        console.log(userCargo);
+
+        if (userCargo === "USUARIO") {
+          throw new UnauthorizedError("Você não possui permissões para esta ação!");
+        }
+      } else {
+        console.log(decoded);
+        throw new UnauthorizedError("Token inválido");
+      }
+
+      try {
+        const music = await prisma.music.findUnique({
+          where: {
+            id: musicId,
+          },
+        });
+  
+        if (!music) {
+          throw new NotFoundError("Música não encontrada, verifique o ID");
+        }
+  
+        await prisma.music.delete({
+          where: {
+            id: music.id
+          }
+        });
+  
+        res.send({ message: "Música excluída com sucesso!" });
+      } catch (error) {
+        if (error instanceof NotFoundError) {
+          res.status(404).json({ Error: error.message });
+        } else if (error instanceof ApiError) {
+          res.status(500).json({ Error: error.message });
+        } else {
+          console.error(error);
+          res.status(500).json({ Error: "Erro de requisição" });
+        }
+      }
     });
   }
 }

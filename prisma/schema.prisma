@@ -13,9 +13,9 @@ model User {
   email       String     @unique
   nome        String?
   cargo       Cargo      @default(USUARIO)
-  foto_perfil String?    @db.VarChar(30)
+  foto_perfil String?    
   data_nasc   DateTime
-  senha       String
+  senha       String     @db.VarChar(200)
   playlist    Playlist[]
   musica      Music[]    @relation("MusicToUser")
   tags        Tags[]     @relation("TagsToUser")
@@ -38,7 +38,7 @@ model Music {
   nome      String
   artista   String
   url       String
-  duracao   Float
+  duracao   String  @db.VarChar(5)
   data_lanc DateTime
   image_url String?
   playlist  Playlist[] @relation("MusicToPlaylist")

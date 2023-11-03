@@ -1,10 +1,16 @@
 import { Response } from "express";
 import prisma from "../database";
+import {
+  UnauthorizedError,
+  NotFoundError,
+  ApiError,
+} from "../helpers/api-erros";
+
 
 const getUserById = async (userId: number, res: Response) => {
   try {
     if (isNaN(userId)) {
-      throw new Error("ID de usuário inválido");
+      throw new UnauthorizedError("ID de usuário inválido");
     }
 
     const user = await prisma.user.findUnique({
@@ -22,13 +28,13 @@ const getUserById = async (userId: number, res: Response) => {
     });
 
     if (!user) {
-      res.status(404).json({ message: "Usuário não encontrado" });
+      throw new NotFoundError("Não foi encontrado esse usuário");
     } else {
       return user;
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erro ao buscar o usuário" });
+    throw new ApiError("Erro de requisição", 500);
   }
 };
 
