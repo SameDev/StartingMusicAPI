@@ -5,6 +5,7 @@ import { errorMiddleware } from "./functions/erroHandler";
 // ROUTES
 import musicRouters  from "./routes/musicRouters";
 import userRouters from "./routes/userRouters";
+import playlistRouters from "./routes/playlistRouters";
 
 const app = express();
 app.use(express.json());
@@ -19,7 +20,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 
-
+app.use("/playlist", playlistRouters);
 app.use("/user", userRouters);
 app.use("/music", musicRouters);
 

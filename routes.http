@@ -31,8 +31,12 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJ
 GET http://localhost:3333/music
 Content-Type: application/json
 
+###
+GET http://localhost:3333/playlist
+Content-Type: application/json
+
 ### 
-GET http://localhost:3333/music/22
+GET http://localhost:3333/music/16
 Content-Type: application/json
 
 ###
