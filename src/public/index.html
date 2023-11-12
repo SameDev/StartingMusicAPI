@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dracula">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starting Music API - DOCS</title>
+    <link rel="shortcut icon" href="https://i.imgur.com/hrheug6.png" type="image/x-icon">
+
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <main>
+        <div class="container mx-auto px-5">
+            <h2 class="text-2xl font-bold pt-5">Documentação da API</h2>
+            <div class="divider"></div> 
+            <section class="introducao">
+                <h2 class="text-md text-secondary font-bold pb-5">INTRODUÇÃO</h2>
+                <p class="text-base">Essa API é uma api de um ambiente real de um TCC (Trabalho de Conclusão de Curso) do Instituto federal catarinense. Para saber mais acesse esse link: <a class="underline" href="https://github.com/SameDev/StartingMusic">github</a>.</p>
+                <p class="text-md font-bold pt-2">Você usuário que está acessando esse site não tem permissão para fazer Requisições a esta API!</p>
+                <div class="metodos ">
+                    <h3 class="text-2xl font-bold pt-6">Requisições HTTP permitidas:</h3>
+                    <p class="text-md px-2 pt-2 text-neutral-content">POST: Criar e Atualizar recursos.</p>
+                    <p class="text-md px-2 pt-2 text-neutral-content">GET: Listar recursos.</p>
+                    <p class="text-md px-2 pt-2 text-neutral-content">DELETE: Deletar recursos.</p>
+                </div>
+                <div class="respostas">
+                    <h3 class="text-2xl font-bold pt-6">Respostas HTTP:</h3>
+                    <ul class="list-disc px-5">
+                        <li class="pb-1"class="text-md pt-2 text-neutral-content">200 <span class="badge-neutral rounded-md p-1">OK</span> – a solicitação foi bem-sucedida (algumas chamadas de API podem retornar 201).</li>
+                        <li class="pb-1"class="text-md pt-2 text-neutral-content">201 <span class="badge-neutral rounded-md p-1">Created</span> – a solicitação foi bem-sucedida e um recurso foi criado.</li>
+                        <li class="pb-1"class="text-md pt-2 text-neutral-content">400 <span class="badge-neutral rounded-md p-1">Bad Request</span> - a solicitação não pôde ser compreendida ou faltavam parâmetros necessários.</li>
+                        <li class="pb-1"class="text-md pt-2 text-neutral-content">401 <span class="badge-neutral rounded-md p-1">Unauthorized</span> – falha na autenticação ou o usuário não tem permissões para a operação solicitada.</li>
+                        <li class="pb-1"class="text-md pt-2 text-neutral-content">404 <span class="badge-neutral rounded-md p-1">Not Found</span> – o recurso não foi encontrado.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="referencias">
+                <h2 class="text-md text-secondary font-bold pt-10 pb-5">REFERÊNCIAS</h2>
+                <div class="user">
+                    <h3 class="text-2xl font-bold pt-2">Usuário</h3>
+                    <div class="divider"></div>
+                    <p class="text-base pt-2">São ouvintes e artistas que utilizaram do login e afins.</p>
+                    <div class="divider"></div>
+                    <div class="atributtes">
+                        <h4 class="text-base pt-2 font-bold">Atributos do Usuário:</h4>
+                        <ul class="list-disc pt-2 pb-2 px-5">
+                            <li>id <span class="badge-neutral rounded-md p-1">Int</span> : indentificador único</li>
+                            <li>email <span class="badge-neutral rounded-md p-1">String</span> : email único do úsuario</li>
+                            <li>nome <span class="badge-neutral rounded-md p-1">String</span> : nome do úsuario</li>
+                            <li>cargo <span class="badge-neutral rounded-md p-1">String</span> : cargo do úsuario (ADMIN, ARTISTA e USUARIO)</li>
+                            <li>foto_perfil <span class="badge-neutral rounded-md p-1">String</span> : url da imagem de perfil do úsuario</li>
+                            <li>data_nasc <span class="badge-neutral rounded-md p-1">DateTime</span> : data de nascimento do úsuario</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    
+</body>
+</html>

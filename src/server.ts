@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { errorMiddleware } from "./functions/erroHandler";
+import { Request, Response } from "express";
+import path from "path";
 
 // ROUTES
 import musicRouters  from "./routes/musicRouters";
@@ -19,6 +21,12 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req: Request, res: Response) => {
+  // Use res.sendFile() para enviar um arquivo estático
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.use("/playlist", playlistRouters);
 app.use("/user", userRouters);
