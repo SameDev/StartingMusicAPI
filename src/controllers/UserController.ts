@@ -104,9 +104,8 @@ class UserController {
           });
         }
       }).catch((error) => {
-        // Trate o erro aqui e envie uma resposta apropriada
         if (error instanceof BadRequestError) {
-          res.status(400).json({ Error: error.message });
+          res.status(400).json({ Error: "Já existe esse úsuario!" });
         } else {
           console.error(error);
           res.status(500).json({ Error: "Erro interno do servidor" });

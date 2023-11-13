@@ -61,7 +61,7 @@ Content-Type: application/json
 
 {
     "nome": "Alisson",
-    "email": "alissongselau@gmail.com",
+    "email": "alissongslaoqslaoq@gmail.com",
     "senha": "1234567",
     "data_nasc": "2006-11-16T00:00:00.000Z"
 }
@@ -69,7 +69,7 @@ Content-Type: application/json
 ### 
 POST http://localhost:3333/user/update/1
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTY5OTAxNzY1OSwiZXhwIjoxNjk5MDQ2NDU5fQ.B_CuG_j9yTLXEEI4ycg_mW6MYqqX1xJBUKWWUWvmEMs
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNjk5OTEyMzc5LCJleHAiOjE2OTk5NDExNzl9.sv8uzhsbtGJHwAivanfMCUbajGrg4EZVRXmoTZelMgE
 
 {
     "nome": "Samuel Conradt",
