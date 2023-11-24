@@ -11,7 +11,7 @@ datasource db {
 model User {
   id          Int        @id @default(autoincrement())
   email       String     @unique
-  nome        String?
+  nome        String     @db.VarChar(25)
   cargo       Cargo      @default(USUARIO)
   foto_perfil String?    
   data_nasc   DateTime
@@ -25,7 +25,7 @@ model User {
 
 model Tags {
   id       Int        @id @default(autoincrement())
-  nome     String     @unique
+  nome     String     @db.VarChar(25) @unique
   musicas  Music[]    @relation("MusicToTags")
   playlist Playlist[] @relation("PlaylistToTags")
   usuario  User[]     @relation("TagsToUser")
@@ -35,7 +35,7 @@ model Tags {
 
 model Music {
   id        Int        @id @default(autoincrement())
-  nome      String
+  nome      String     @db.VarChar(25)
   artista   String
   url       String
   duracao   String  @db.VarChar(5)
@@ -50,7 +50,7 @@ model Music {
 
 model Playlist {
   id        Int      @id @default(autoincrement())
-  nome      String
+  nome      String     @db.VarChar(25)
   descricao String?
   foto      String?
   data      DateTime

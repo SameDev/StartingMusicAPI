@@ -68,7 +68,6 @@ class MusicController {
           res
             .status(201)
             .json({ message: "Música criada com sucesso!", music: music });
-          console.dir(music);
         })
         .catch((error) => {
           console.error(error);
@@ -120,7 +119,7 @@ class MusicController {
         });
 
         if (!music) {
-          throw new ApiError("Música não encontrada, verifique se passou o ID corretamente!", 404);
+          throw new NotFoundError("Música não encontrada, verifique se passou o ID corretamente!");
         }
 
         const {
@@ -281,6 +280,69 @@ class MusicController {
         }
       }
     });
+  }
+
+  async listSongs(req: Request, res: Response) {
+    const search = req.query.search;
+    const songsId = req.query.id;
+    const id = parseInt(songsId, 10);
+
+    try {
+      let songs;
+      if (search) {
+        songs = await prisma.music.findMany({
+          include: {
+            playlist: true,
+            artistaId: {
+              select: {
+                id: true,
+              },
+            },
+            tags: true,
+          },
+          where: {
+            nome: {
+              contains: search,
+              mode: "insensitive"
+            }
+          }
+        });
+      } else if (id) {
+        songs = await prisma.music.findUnique({
+          where: {
+            id
+          },
+          include: {
+            playlist: true,
+            artistaId: {
+              select: {
+                id: true,
+              },
+            },
+            tags: true,
+          }
+        });
+      } else {
+        songs = await prisma.music.findMany({
+          include: {
+            tags: true,
+            artistaId: {
+              select: {
+                id: true,
+              },
+            },
+            playlist: true,
+          },
+        });
+      }
+
+      const resultQuery = Object.assign({}, songs);
+      res.send({ songs: resultQuery });
+    }
+    catch (error) {
+      console.error(error);
+      throw new ApiError("Erro de requisição", 500);
+    }
   }
 }
 

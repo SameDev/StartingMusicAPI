@@ -3,8 +3,7 @@ import MusicController from "../controllers/MusicController";
 
 const router = Router();
 
-router.get("/", MusicController.listAllSongs);
-router.get("/:id", MusicController.getMusicById);
+router.get("/", MusicController.listSongs);
 
 router.post("/create", MusicController.uploadMusic);
 router.post("/update/:id", MusicController.updateMusic);
