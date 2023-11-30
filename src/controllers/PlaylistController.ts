@@ -17,10 +17,34 @@ class PlaylistController {
     const search = req.query.search;
     const idPlaylist = req.query.id;
 
-    if (idPlaylist) {
-    const id = parseInt(idPlaylist.toString(), 10);
+
+    
     try {
       let playlists;
+
+      if (idPlaylist) {
+        const id = parseInt(idPlaylist.toString(), 10);
+
+        if (id) {
+          playlists = await prisma.playlist.findUnique({
+            include: {
+              tags: true,
+              musicas: true,
+              criador: {
+                select: {
+                  nome: true,
+                  id: true,
+                },
+              },
+            },
+            where: {
+              id,
+            },
+          });
+        }
+      }
+      
+      
       if (search) {
         playlists = await prisma.playlist.findMany({
           include: {
@@ -38,22 +62,6 @@ class PlaylistController {
               contains: search.toString(),
               mode: "insensitive",
             },
-          },
-        });
-      } else if (id) {
-        playlists = await prisma.playlist.findUnique({
-          include: {
-            tags: true,
-            musicas: true,
-            criador: {
-              select: {
-                nome: true,
-                id: true,
-              },
-            },
-          },
-          where: {
-            id,
           },
         });
       } else {
@@ -77,7 +85,6 @@ class PlaylistController {
       throw new NotFoundError("Ocorreu um erro!", res);
       console.error(error);
     }
-  }
   }
 
   async createPlaylist(req: Request, res: Response) {

@@ -197,43 +197,6 @@ class MusicController {
     });
   }
 
-  async getMusicById(req: Request, res: Response) {
-    const id = req.params.id;
-    const musicId = parseInt(id, 10);
-
-    try {
-      const music = await prisma.music.findUnique({
-        where: {
-          id: musicId,
-        },
-        include: {
-          playlist: true,
-          artistaId: {
-            select: {
-              id: true,
-            },
-          },
-          tags: true,
-        },
-      });
-
-      if (!music) {
-        throw new NotFoundError("Música não encontrada, verifique o ID", res);
-      }
-
-      res.send({ Message: "Música encontrada com sucesso", music: music });
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        res.status(404).json({ Error: error.message });
-      } else if (error instanceof ApiError) {
-        res.status(500).json({ Error: error.message });
-      } else {
-        console.error(error);
-        res.status(500).json({ Error: "Erro de requisição" });
-      }
-    }
-  }
-
   async deleteMusic(req: Request, res: Response) {
     const id = req.params.id;
     const musicId = parseInt(id, 10);
@@ -298,11 +261,31 @@ class MusicController {
   async listSongs(req: Request, res: Response) {
     const search = req.query.search;
     const songsId = req.query.id;
-    if (songsId) {
-      const id = parseInt(songsId.toString(), 10);
-
+    
       try {
         let songs;
+
+        if (songsId) {
+          const id = parseInt(songsId.toString(), 10);
+
+          if (id) {
+            songs = await prisma.music.findUnique({
+              where: {
+                id,
+              },
+              include: {
+                playlist: true,
+                artistaId: {
+                  select: {
+                    id: true,
+                  },
+                },
+                tags: true,
+              },
+            });
+          }
+        }
+
         if (search) {
           songs = await prisma.music.findMany({
             include: {
@@ -319,21 +302,6 @@ class MusicController {
                 contains: search.toString(),
                 mode: "insensitive",
               },
-            },
-          });
-        } else if (id) {
-          songs = await prisma.music.findUnique({
-            where: {
-              id,
-            },
-            include: {
-              playlist: true,
-              artistaId: {
-                select: {
-                  id: true,
-                },
-              },
-              tags: true,
             },
           });
         } else {
@@ -356,10 +324,7 @@ class MusicController {
         console.error(error);
         throw new ApiError("Erro de requisição", 500, res);
       }
-    } else {
-      res.status(400).send("Ocorreu um erro interno!")
     }
   }
-}
 
 export default new MusicController();
