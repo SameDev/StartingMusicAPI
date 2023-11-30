@@ -1,6 +1,6 @@
 POST http://localhost:3333/music/create
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNjk5MDMwNTI0LCJleHAiOjE2OTkwNTkzMjR9.1sk5T6am5R3pShrQPj3Nmy2D2IuJFphcJ7HzDGdWHj8
+Authorization: yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAxMzcyMzg4LCJleHAiOjE3MDE0MDExODh9.E0oI3AzTIfr58fzroAPHmrCPvp5b4SLiQNhMIXlIEec
 
 {
     "userId": 1,
@@ -34,6 +34,20 @@ Content-Type: application/json
 ###
 GET http://localhost:3333/playlist
 Content-Type: application/json
+
+###
+POST http://localhost:3333/playlist/add/10
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAxMzc1OTc5LCJleHAiOjE3MDE0MDQ3Nzl9.RUifYpYeg6uOJ8N5Hlu29Ua7O93qFw6LsborWZVR1Kw
+
+{
+    "musicas": [1]
+}
+
+###
+GET http://localhost:3333/music
+Content-Type: application/json
+
 
 ### 
 GET http://localhost:3333/music/16

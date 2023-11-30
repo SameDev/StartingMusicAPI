@@ -10,7 +10,7 @@ import {
 const getUserById = async (userId: number, res: Response) => {
   try {
     if (isNaN(userId)) {
-      throw new UnauthorizedError("ID de usuário inválido");
+      throw new UnauthorizedError("ID de usuário inválido", res);
     }
 
     const user = await prisma.user.findUnique({
@@ -28,13 +28,13 @@ const getUserById = async (userId: number, res: Response) => {
     });
 
     if (!user) {
-      throw new NotFoundError("Não foi encontrado esse usuário");
+      throw new NotFoundError("Não foi encontrado esse usuário", res);
     } else {
       return user;
     }
   } catch (error) {
     console.error(error);
-    throw new ApiError("Erro de requisição", 500);
+    throw new ApiError("Erro de requisição", 500, res);
   }
 };
 

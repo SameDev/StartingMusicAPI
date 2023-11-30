@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from "express";
 import getUserByIdDB from "../functions/userFunctions";
 import prisma from "../database";
@@ -18,13 +19,13 @@ class UserController {
 
     const token = req.headers.authorization;
     if (!token) {
-      throw new UnauthorizedError("Token não fornecido");
+      throw new UnauthorizedError("Token não fornecido", res);
     }
 
-    jwt.verify(token, process.env.JWT_PASS ?? "", (err, decoded) => {
+    jwt.verify(token, process.env.JWT_PASS ?? "", (err) => {
       if (err) {
         console.error(err);
-        throw new UnauthorizedError("Token inválido");
+        throw new UnauthorizedError("Token inválido", res);
       }
 
       getUserByIdDB(userId, res).then((user) => {
@@ -35,13 +36,13 @@ class UserController {
           })
           .then((existingUser) => {
             if (existingUser && existingUser.id !== userId) {
-              throw new BadRequestError("Já existe um usuário com este email");
+              throw new BadRequestError("Já existe um usuário com este email", res);
             }
             const newName = nome || user.nome;
 
             const newDataNasc = data_nasc || user.data_nasc;
 
-            const newSenha = senha ? bcrypt.hashSync(senha, 10) : user.senha;
+            const newSenha = senha ? bcrypt.hashSync(senha, 10) : senha;
 
             const newUrl = url || user.foto_perfil;
 
@@ -68,7 +69,7 @@ class UserController {
               })
               .catch((error) => {
                 console.error(error);
-                throw new ApiError("Não foi possível atualizar o usuário", 500);
+                throw new ApiError("Não foi possível atualizar o usuário", 500, res);
               });
           });
       });
@@ -86,7 +87,7 @@ class UserController {
       })
       .then((user) => {
         if (user) {
-          throw new BadRequestError("Já existe um usuário com esse email");
+          throw new BadRequestError("Já existe um usuário com esse email", res);
         } else {
           bcrypt.hash(senha, 10).then((hashPassword: string) => {
             prisma.user
@@ -132,21 +133,24 @@ class UserController {
 
               const { senha: _, ...userLogin } = user;
 
+              res.setHeader("Authorization", `${token}`);
+
+
               res.status(200).json({
+                Messagem: "Token Criado!",
                 user: userLogin,
-                token: token,
               });
             } else {
-              throw new BadRequestError("Senha incorreta");
+              throw new BadRequestError("Senha incorreta", res);
             }
           });
         } else {
-          throw new NotFoundError("Usuário não encontrado");
+          throw new NotFoundError("Usuário não encontrado", res);
         }
       })
       .catch((error) => {
         console.error(error);
-        throw new ApiError("Erro ao autenticar o usuário", 500);
+        throw new ApiError("Erro ao autenticar o usuário", 500, res);
       });
   }
 
@@ -159,12 +163,12 @@ class UserController {
         if (user) {
           res.status(200).json(user);
         } else {
-          throw new NotFoundError("Usuário não encontrado");
+          throw new NotFoundError("Usuário não encontrado", res);
         }
       })
       .catch((error) => {
         console.error(error);
-        throw new ApiError("Erro ao buscar o usuário", 500);
+        throw new ApiError("Erro ao buscar o usuário", 500, res);
       });
   }
 }

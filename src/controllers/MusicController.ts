@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from "express";
 import prisma from "../database";
 import jwt from "jsonwebtoken";
@@ -14,34 +16,45 @@ class MusicController {
 
     const token = req.headers.authorization;
     if (!token) {
-      throw new UnauthorizedError("Token não fornecido");
+      throw new UnauthorizedError("Token não fornecido", res);
     }
 
-    jwt.verify(token, process.env.JWT_PASS ?? "", (err, decoded) => {
+    jwt.verify(token, process.env.JWT_PASS ?? "", (err, decoded: any) => {
       if (err) {
         console.error(err);
-        throw new UnauthorizedError("Token inválido");
+        throw new UnauthorizedError("Token inválido", res);
       }
-      if (decoded && decoded.cargo) {
-        const userCargo = decoded.cargo;
-        console.log(userCargo);
+      if (decoded) {
+        if (decoded.cargo) {
+          const userCargo = decoded.cargo;
+          console.log(userCargo);
 
-        if (userCargo === "USUARIO") {
-          throw new UnauthorizedError("Você não possui permissões para esta ação!");
+          if (userCargo === "USUARIO") {
+            throw new UnauthorizedError(
+              "Você não possui permissões para esta ação!",
+              res
+            );
+          }
         }
       } else {
         console.log(decoded);
-        throw new UnauthorizedError("Token inválido");
+        throw new UnauthorizedError("Token inválido", res);
       }
 
       const dateNow = Date.now();
       const dataAtual = new Date(dateNow);
 
       if (typeof artistaId != "object") {
-        throw new BadRequestError("Tipo de dado incorreto para artistaId, use um array");
+        throw new BadRequestError(
+          "Tipo de dado incorreto para artistaId, use um array",
+          res
+        );
       }
       if (typeof tags != "object") {
-        throw new BadRequestError("Tipo de dado incorreto para tags, use um array");
+        throw new BadRequestError(
+          "Tipo de dado incorreto para tags, use um array",
+          res
+        );
       }
 
       prisma.music
@@ -59,8 +72,7 @@ class MusicController {
               })),
             },
             tags: {
-              connect: tags.map((tagId: object) => ({ id: tagId }),
-              ),
+              connect: tags.map((tagId: object) => ({ id: tagId })),
             },
           },
         })
@@ -71,7 +83,7 @@ class MusicController {
         })
         .catch((error) => {
           console.error(error);
-          throw new ApiError("Não foi possível criar a música", 500);
+          throw new ApiError("Não foi possível criar a música", 500, res);
         });
     });
   }
@@ -82,13 +94,13 @@ class MusicController {
 
     const token = req.headers.authorization;
     if (!token) {
-      throw new UnauthorizedError("Token não fornecido");
+      throw new UnauthorizedError("Token não fornecido", res);
     }
 
-    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded) => {
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
       if (err) {
         console.error(err);
-        throw new UnauthorizedError("Token inválido");
+        throw new UnauthorizedError("Token inválido", res);
       }
 
       if (decoded && decoded.cargo) {
@@ -96,34 +108,47 @@ class MusicController {
         console.log(userCargo);
 
         if (userCargo === "USUARIO") {
-          throw new UnauthorizedError("Você não possui permissões para esta ação!");
+          throw new UnauthorizedError(
+            "Você não possui permissões para esta ação!",
+            res
+          );
         }
       } else {
         console.log(decoded);
-        throw new UnauthorizedError("Token inválido");
+        throw new UnauthorizedError("Token inválido", res);
       }
 
       try {
         const music = await prisma.music.findUnique({
           where: {
-            id
+            id,
           },
           include: {
             tags: true,
             artistaId: {
               select: {
-                id: true
-              }
-            }
-          }
+                id: true,
+              },
+            },
+          },
         });
 
         if (!music) {
-          throw new NotFoundError("Música não encontrada, verifique se passou o ID corretamente!");
+          throw new NotFoundError(
+            "Música não encontrada, verifique se passou o ID corretamente!",
+            res
+          );
         }
 
         const {
-          nome, artista, url, duracao, imageUrl, data_lanc, artistaId, tags
+          nome,
+          artista,
+          url,
+          duracao,
+          imageUrl,
+          data_lanc,
+          artistaId,
+          tags,
         } = req.body;
 
         const dataToUpdate: Record<string, any> = {};
@@ -134,8 +159,14 @@ class MusicController {
         if (duracao) dataToUpdate.duracao = duracao;
         if (imageUrl) dataToUpdate.image_url = imageUrl;
         if (data_lanc) dataToUpdate.data_lanc = data_lanc;
-        if (artistaId) dataToUpdate.artistaId = { connect: artistaId.map((idArtista: object) => ({ id: idArtista })) };
-        if (tags) dataToUpdate.tags = { connect: tags.map((tagId: object) => ({ id: tagId })) };
+        if (artistaId)
+          dataToUpdate.artistaId = {
+            connect: artistaId.map((idArtista: object) => ({ id: idArtista })),
+          };
+        if (tags)
+          dataToUpdate.tags = {
+            connect: tags.map((tagId: object) => ({ id: tagId })),
+          };
 
         const updatedMusic = await prisma.music.update({
           where: { id },
@@ -145,46 +176,25 @@ class MusicController {
             playlist: true,
             artistaId: {
               select: {
-                id: true
-              }
-            }
-          }
+                id: true,
+              },
+            },
+          },
         });
 
-        res.status(201).json({ message: "Música atualizada com sucesso!", music: updatedMusic });
+        res.status(201).json({
+          message: "Música atualizada com sucesso!",
+          music: updatedMusic,
+        });
       } catch (error) {
         if (error instanceof ApiError) {
           res.status(error.statusCode).json({ message: error.message });
         } else {
           console.error(error);
-          throw new ApiError("Não foi possível atualizar a música", 500);
+          throw new ApiError("Não foi possível atualizar a música", 500, res);
         }
       }
     });
-  }
-
-  listAllSongs(req: Request, res: Response) {
-    prisma.music
-      .findMany({
-        include: {
-          tags: true,
-          artistaId: {
-            select: {
-              id: true,
-            },
-          },
-          playlist: true,
-        },
-      })
-      .then((songs) => {
-        const musicas = Object.assign({}, songs);
-        res.send({ songs: musicas });
-        console.dir(songs);
-      })
-      .catch((error) => {
-        console.error(error);
-        throw new ApiError("Erro de requisição", 500);
-      });
   }
 
   async getMusicById(req: Request, res: Response) {
@@ -208,7 +218,7 @@ class MusicController {
       });
 
       if (!music) {
-        throw new NotFoundError("Música não encontrada, verifique o ID");
+        throw new NotFoundError("Música não encontrada, verifique o ID", res);
       }
 
       res.send({ Message: "Música encontrada com sucesso", music: music });
@@ -230,13 +240,13 @@ class MusicController {
 
     const token = req.headers.authorization;
     if (!token) {
-      throw new UnauthorizedError("Token não fornecido");
+      throw new UnauthorizedError("Token não fornecido", res);
     }
 
-    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded) => {
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
       if (err) {
         console.error(err);
-        throw new UnauthorizedError("Token inválido");
+        throw new UnauthorizedError("Token inválido", res);
       }
 
       if (decoded && decoded.cargo) {
@@ -244,11 +254,14 @@ class MusicController {
         console.log(userCargo);
 
         if (userCargo === "USUARIO") {
-          throw new UnauthorizedError("Você não possui permissões para esta ação!");
+          throw new UnauthorizedError(
+            "Você não possui permissões para esta ação!",
+            res
+          );
         }
       } else {
         console.log(decoded);
-        throw new UnauthorizedError("Token inválido");
+        throw new UnauthorizedError("Token inválido", res);
       }
 
       try {
@@ -257,17 +270,17 @@ class MusicController {
             id: musicId,
           },
         });
-  
+
         if (!music) {
-          throw new NotFoundError("Música não encontrada, verifique o ID");
+          throw new NotFoundError("Música não encontrada, verifique o ID", res);
         }
-  
+
         await prisma.music.delete({
           where: {
-            id: music.id
-          }
+            id: music.id,
+          },
         });
-  
+
         res.send({ message: "Música excluída com sucesso!" });
       } catch (error) {
         if (error instanceof NotFoundError) {
@@ -285,63 +298,66 @@ class MusicController {
   async listSongs(req: Request, res: Response) {
     const search = req.query.search;
     const songsId = req.query.id;
-    const id = parseInt(songsId, 10);
+    if (songsId) {
+      const id = parseInt(songsId.toString(), 10);
 
-    try {
-      let songs;
-      if (search) {
-        songs = await prisma.music.findMany({
-          include: {
-            playlist: true,
-            artistaId: {
-              select: {
-                id: true,
+      try {
+        let songs;
+        if (search) {
+          songs = await prisma.music.findMany({
+            include: {
+              playlist: true,
+              artistaId: {
+                select: {
+                  id: true,
+                },
+              },
+              tags: true,
+            },
+            where: {
+              nome: {
+                contains: search.toString(),
+                mode: "insensitive",
               },
             },
-            tags: true,
-          },
-          where: {
-            nome: {
-              contains: search,
-              mode: "insensitive"
-            }
-          }
-        });
-      } else if (id) {
-        songs = await prisma.music.findUnique({
-          where: {
-            id
-          },
-          include: {
-            playlist: true,
-            artistaId: {
-              select: {
-                id: true,
-              },
+          });
+        } else if (id) {
+          songs = await prisma.music.findUnique({
+            where: {
+              id,
             },
-            tags: true,
-          }
-        });
-      } else {
-        songs = await prisma.music.findMany({
-          include: {
-            tags: true,
-            artistaId: {
-              select: {
-                id: true,
+            include: {
+              playlist: true,
+              artistaId: {
+                select: {
+                  id: true,
+                },
               },
+              tags: true,
             },
-            playlist: true,
-          },
-        });
+          });
+        } else {
+          songs = await prisma.music.findMany({
+            include: {
+              tags: true,
+              artistaId: {
+                select: {
+                  id: true,
+                },
+              },
+              playlist: true,
+            },
+          });
+        }
+
+        const resultQuery = Object.assign({}, songs);
+        res.send({ songs: resultQuery });
+      } catch (error) {
+        console.error(error);
+        throw new ApiError("Erro de requisição", 500, res);
       }
-
-      const resultQuery = Object.assign({}, songs);
-      res.send({ songs: resultQuery });
-    }
-    catch (error) {
-      console.error(error);
-      throw new ApiError("Erro de requisição", 500);
+    } else {
+      res.status(400).send("Ocorreu um erro interno!")
     }
   }
 }
