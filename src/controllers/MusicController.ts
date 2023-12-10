@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from "express";
 import prisma from "../database";
 import jwt from "jsonwebtoken";
@@ -27,7 +25,7 @@ class MusicController {
       if (decoded) {
         if (decoded.cargo) {
           const userCargo = decoded.cargo;
-          console.log(userCargo);
+          
 
           if (userCargo === "USUARIO") {
             throw new UnauthorizedError(
@@ -105,7 +103,7 @@ class MusicController {
 
       if (decoded && decoded.cargo) {
         const userCargo = decoded.cargo;
-        console.log(userCargo);
+        
 
         if (userCargo === "USUARIO") {
           throw new UnauthorizedError(
@@ -174,6 +172,13 @@ class MusicController {
           include: {
             tags: true,
             playlist: true,
+            userLiked: {
+              select: {
+                id: true,
+                nome: true,
+                email: true
+              }
+            },
             artistaId: {
               select: {
                 id: true,
@@ -214,7 +219,7 @@ class MusicController {
 
       if (decoded && decoded.cargo) {
         const userCargo = decoded.cargo;
-        console.log(userCargo);
+        
 
         if (userCargo === "USUARIO") {
           throw new UnauthorizedError(
@@ -280,6 +285,13 @@ class MusicController {
                     id: true,
                   },
                 },
+                userLiked: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    email: true
+                  }
+                },
                 tags: true,
               },
             });
@@ -296,6 +308,13 @@ class MusicController {
                 },
               },
               tags: true,
+              userLiked: {
+                select: {
+                  id: true,
+                  nome: true,
+                  email: true
+                }
+              }
             },
             where: {
               nome: {
@@ -314,6 +333,13 @@ class MusicController {
                 },
               },
               playlist: true,
+              userLiked: {
+                select: {
+                  id: true,
+                  nome: true,
+                  email: true
+                }
+              }
             },
           });
         }

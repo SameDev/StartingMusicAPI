@@ -24,6 +24,7 @@ const getUserById = async (userId: number, res: Response) => {
         cargo: true,
         foto_perfil: true,
         data_nasc: true,
+        gostei: true
       },
     });
 

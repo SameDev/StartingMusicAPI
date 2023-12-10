@@ -14,6 +14,25 @@ Authorization: yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU
 }
 
 ###
+POST http://localhost:3333/tags/create
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTcwMjE2NzE5MSwiZXhwIjoxNzAyMTk1OTkxfQ._c6ZogiGL8aer1dbX8bc3zUQw2z7WH6ajhKcHVqT_lw
+Content-Type: application/json
+
+{
+    "nome": "Pop"
+}
+
+
+###
+GET http://localhost:3333/tags/
+Content-Type: application/json
+
+###
+DELETE http://localhost:3333/tags/delete/2
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTcwMjE2NzE5MSwiZXhwIjoxNzAyMTk1OTkxfQ._c6ZogiGL8aer1dbX8bc3zUQw2z7WH6ajhKcHVqT_lw
+
+###
 POST http://localhost:3333/music/update/22
 Content-Type: application/json
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNjk5MDMwNTI0LCJleHAiOjE2OTkwNTkzMjR9.1sk5T6am5R3pShrQPj3Nmy2D2IuJFphcJ7HzDGdWHj8
@@ -31,22 +50,47 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJ
 GET http://localhost:3333/music
 Content-Type: application/json
 
-###
-GET http://localhost:3333/playlist
-Content-Type: application/json
 
 ###
-POST http://localhost:3333/playlist/add/10
+POST http://localhost:3333/playlist/add/song/2
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAxMzc1OTc5LCJleHAiOjE3MDE0MDQ3Nzl9.RUifYpYeg6uOJ8N5Hlu29Ua7O93qFw6LsborWZVR1Kw
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAyMDY2NjY5LCJleHAiOjE3MDIwOTU0Njl9.UVIH25umQEyVY5JwiZpFv8alx5aNQAtfHFYAecHnJMs
 
 {
-    "musicas": [1]
+    "musicas": [16]
 }
 
 ###
-GET http://localhost:3333/playlist
+DELETE http://localhost:3333/playlist/delete/song/2
 Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAyMDY2NjY5LCJleHAiOjE3MDIwOTU0Njl9.UVIH25umQEyVY5JwiZpFv8alx5aNQAtfHFYAecHnJMs
+
+{
+    "musicas": [16]
+}
+
+###
+DELETE http://localhost:3333/playlist/delete/2
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAyMDY2NjY5LCJleHAiOjE3MDIwOTU0Njl9.UVIH25umQEyVY5JwiZpFv8alx5aNQAtfHFYAecHnJMs
+
+###
+GET http://localhost:3333/playlist?search=sdds
+Content-Type: application/json
+
+###
+POST http://localhost:3333/playlist/create
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAyMDY2NjY5LCJleHAiOjE3MDIwOTU0Njl9.UVIH25umQEyVY5JwiZpFv8alx5aNQAtfHFYAecHnJMs
+
+{
+    "nome": "RITA LEE GLOBAL",
+    "descricao": "vou pirar",
+    "foto": "https://images.genius.com/c59245dcb9e8dff3bfa6e5f47c6703bb.600x600x1.jpg",
+    "data": "2023-11-03T16:55:36.350Z",
+    "userId": 1,
+    "tags": [1]
+}
 
 ###
 DELETE http://localhost:3333/music/delete/21
@@ -60,7 +104,7 @@ POST http://localhost:3333/user/login
 Content-Type: application/json
 
 {
-    "email": "conradtsamuel11@gmail.com",
+    "email": "conradtsamuel@gmail.com",
     "senha": "1234567"
 }
 

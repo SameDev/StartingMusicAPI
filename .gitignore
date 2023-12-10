@@ -48,6 +48,7 @@ jspm_packages/
 dist/
 yarn.lock
 package-lock.json
+ecosystem.config.js
 
 # Prisma
 prisma/migrations/

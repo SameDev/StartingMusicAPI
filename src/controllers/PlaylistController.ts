@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { Request, Response } from "express";
 import prisma from "../database";
 import jwt from "jsonwebtoken";
@@ -16,8 +13,6 @@ class PlaylistController {
   async listPlaylist(req: Request, res: Response) {
     const search = req.query.search;
     const idPlaylist = req.query.id;
-
-
     
     try {
       let playlists;
@@ -103,13 +98,7 @@ class PlaylistController {
       }
       if (decoded && decoded.cargo) {
         const userCargo = decoded.cargo;
-        console.log(userCargo);
-
-        if (userCargo === "USUARIO") {
-          throw new UnauthorizedError(
-            "Você não possui permissões para esta ação!", res
-          );
-        }
+        
       } else {
         console.log(decoded);
         throw new UnauthorizedError("Token inválido", res);
@@ -156,6 +145,43 @@ class PlaylistController {
     });
   }
 
+  deletePlaylit(req: Request, res: Response) {
+    const playlistId = req.params.id;
+    const id = parseInt(playlistId, 10);
+
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido", res);
+    }
+
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
+      const userId = decoded.id;
+      if (err) {
+        console.error(err);
+        throw new UnauthorizedError("Token inválido", res);
+      }
+      if (decoded && decoded.cargo) {
+        const userCargo = decoded.cargo;
+        
+
+      } else {
+        console.log(decoded);
+        throw new UnauthorizedError("Token inválido", res);
+      }
+
+      prisma.playlist.delete({
+        where: {
+          id
+        }
+      }).then(() => {
+        res.send("Playlist deletada com sucesso!");
+      }).catch((error) => {
+        throw new ApiError(error, 400, res);
+      })
+    });
+  }
+
+
   async updatePlaylist(req: Request, res: Response) {
     const token = req.headers.authorization;
     if (!token) {
@@ -173,13 +199,6 @@ class PlaylistController {
       }
       if (decoded && decoded.cargo) {
         const userCargo = decoded.cargo;
-        console.log(userCargo);
-
-        if (userCargo === "USUARIO") {
-          throw new UnauthorizedError(
-            "Você não possui permissões para esta ação!", res
-          );
-        }
       } else {
         console.log(decoded);
         throw new UnauthorizedError("Token inválido", res);
@@ -337,6 +356,106 @@ class PlaylistController {
           throw new ApiError("Não foi possível atualizar a playlist", 500, res);
         }
       }
+    });
+  }
+
+  async removeSong(req: Request, res: Response) {
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido", res);
+    }
+
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
+      const playlistId = req.params.id;
+      const id = parseInt(playlistId, 10);
+
+      if (err) {
+        console.error(err);
+        throw new ApiError(err.toString(), 500, res);
+      }
+      if (decoded && decoded.cargo) {
+        const userCargo = decoded.cargo;
+      } else {
+        console.log(decoded);
+        throw new UnauthorizedError("Token inválido", res);
+      }
+
+      try {
+        const { musicas } = req.body;
+      
+        const verificarPlaylist = await prisma.playlist.findUnique({
+          where: {
+            id,
+          },
+          include: {
+            tags: true,
+            musicas: true,
+          },
+        });
+      
+        if (!verificarPlaylist) {
+          throw new NotFoundError(
+            "Playlist não encontrada, verifique se passou o ID corretamente!",
+            res
+          );
+        }
+      
+        if (!Array.isArray(musicas)) {
+          return res.send("Por favor, passe um array de IDs de músicas!");
+        }
+      
+        const verificarMusicas = await prisma.music.findMany({
+          where: {
+            id: {
+              in: musicas,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+      
+        const foundMusicIds = verificarMusicas.map((musica) => musica.id);
+        const missingMusicIds = musicas.filter(
+          (id) => !foundMusicIds.includes(id)
+        );
+      
+        if (missingMusicIds.length > 0) {
+          return res.send(
+            `As seguintes músicas não foram encontradas: ${missingMusicIds.join(
+              ", "
+            )}`
+          );
+        }
+      
+        const removerMusicasDaPlaylist = await prisma.playlist.update({
+          where: {
+            id,
+          },
+          data: {
+            musicas: {
+              disconnect: foundMusicIds.map((id) => ({ id })),
+            },
+          },
+        });
+      
+        res.status(201).json({
+          message: "Música(s) removida(s) com sucesso da playlist!",
+          playlist: removerMusicasDaPlaylist,
+        });
+      } catch (error) {
+        if (error instanceof ApiError) {
+          res.status(error.statusCode).json({ message: error.message });
+        } else {
+          console.error(error);
+          throw new ApiError(
+            "Não foi possível remover a(s) música(s) da playlist",
+            500,
+            res
+          );
+        }
+      }
+      
     });
   }
 }

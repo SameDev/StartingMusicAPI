@@ -8,8 +8,9 @@ router.get("/", PlaylistController.listPlaylist);
 router.post("/create", PlaylistController.createPlaylist);
 router.post("/update/:id", PlaylistController.updatePlaylist);
 
-router.post("/add/:id", PlaylistController.addSong);
+router.delete("/delete/:id", PlaylistController.deletePlaylit);
 
-// router.delete("/delete/:id", PlaylistController.deletePlaylist); 
+router.post("/add/song/:id", PlaylistController.addSong);
+router.delete("/delete/song/:id", PlaylistController.removeSong); 
 
 export default router;

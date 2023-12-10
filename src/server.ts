@@ -9,6 +9,7 @@ import bodyParser from 'body-parser';
 import musicRouters  from "./routes/musicRouters";
 import userRouters from "./routes/userRouters";
 import playlistRouters from "./routes/playlistRouters";
+import tagsRouters from "./routes/tagsRouters";
 
 const app = express();
 app.use(express.json());
@@ -28,12 +29,12 @@ app.use(cors(corsOptions));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req: Request, res: Response) => {
-  // Use res.sendFile() para enviar um arquivo estático
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.use("/playlist", playlistRouters);
 app.use("/user", userRouters);
+app.use("/tags", tagsRouters);
 app.use("/music", musicRouters);
 
 

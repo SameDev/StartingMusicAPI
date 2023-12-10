@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from "express";
 import getUserByIdDB from "../functions/userFunctions";
 import prisma from "../database";
@@ -9,7 +8,7 @@ import {
   BadRequestError,
   NotFoundError,
   ApiError,
-} from "../helpers/api-erros"; // Importe os tipos corretos de erros
+} from "../helpers/api-erros"; 
 
 class UserController {
   updateUser(req: Request, res: Response) {
@@ -36,7 +35,10 @@ class UserController {
           })
           .then((existingUser) => {
             if (existingUser && existingUser.id !== userId) {
-              throw new BadRequestError("Já existe um usuário com este email", res);
+              throw new BadRequestError(
+                "Já existe um usuário com este email",
+                res
+              );
             }
             const newName = nome || user.nome;
 
@@ -69,7 +71,11 @@ class UserController {
               })
               .catch((error) => {
                 console.error(error);
-                throw new ApiError("Não foi possível atualizar o usuário", 500, res);
+                throw new ApiError(
+                  "Não foi possível atualizar o usuário",
+                  500,
+                  res
+                );
               });
           });
       });
@@ -104,7 +110,8 @@ class UserController {
               });
           });
         }
-      }).catch((error) => {
+      })
+      .catch((error) => {
         if (error instanceof BadRequestError) {
           res.status(400).json({ Error: "Já existe esse úsuario!" });
         } else {
@@ -135,7 +142,6 @@ class UserController {
 
               res.setHeader("Authorization", `${token}`);
 
-
               res.status(200).json({
                 Messagem: "Token Criado!",
                 user: userLogin,
@@ -154,6 +160,26 @@ class UserController {
       });
   }
 
+  getAllUsers(req: Request, res: Response) {
+    prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        nome: true,
+        cargo: true,
+        foto_perfil: true,
+        data_nasc: true,
+        gostei: true
+      }
+    })
+    .then((user) => {
+      res.send(user)
+    })
+    .catch((error: Error) => {
+      throw new ApiError("Ocorreu um erro!\n"+error, 500, res)
+    });
+  }
+
   getUserById(req: Request, res: Response) {
     const idUser = req.params.id;
     const userId = parseInt(idUser, 10);
@@ -170,6 +196,245 @@ class UserController {
         console.error(error);
         throw new ApiError("Erro ao buscar o usuário", 500, res);
       });
+  }
+
+  deleteUser(req: Request, res: Response) {
+    const id = req.params.id;
+    const userId = parseInt(id, 10);
+
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido", res);
+    }
+
+    jwt.verify(token, process.env.JWT_PASS ?? "", (err) => {
+      if (err) {
+        console.error(err);
+        throw new UnauthorizedError("Token inválido", res);
+      }
+
+      getUserByIdDB(userId, res).then((user) => {
+        prisma.user
+          .delete({
+            where: {
+              id: userId,
+            },
+          })
+          .then(() => {
+            res.status(200).json({
+              message: "Usuário removido com sucesso!",
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            throw new ApiError("Não foi possível remover o usuário", 500, res);
+          });
+      });
+    });
+  }
+
+  async addLikedSong(req: Request, res: Response) {
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido", res);
+    }
+
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
+      const userId = req.params.id;
+      const id = parseInt(userId, 10);
+
+      if (err) {
+        console.error(err);
+        throw new ApiError(err.toString(), 500, res);
+      }
+      if (decoded && decoded.cargo) {
+        const userCargo = decoded.cargo;
+      } else {
+        console.log(decoded);
+        throw new UnauthorizedError("Token inválido", res);
+      }
+
+      try {
+        prisma.user
+          .findUnique({
+            where: {
+              id,
+            },
+          })
+          .then((user) => {
+            if (user) {
+              throw new NotFoundError(
+                "Usuário não encontrado! Verifique o ID do usuário!",
+                res
+              );
+            }
+          });
+
+        const { musicas } = req.body;
+
+        if (!Array.isArray(musicas)) {
+          return res.send("Por favor, passe um array de IDs de músicas!");
+        }
+
+        const verificarMusicas = await prisma.music.findMany({
+          where: {
+            id: {
+              in: musicas,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        const foundMusicIds = verificarMusicas.map((musica) => musica.id);
+        const missingMusicIds = musicas.filter(
+          (id) => !foundMusicIds.includes(id)
+        );
+
+        if (missingMusicIds.length > 0) {
+          return res.send(
+            `As seguintes músicas não foram encontradas: ${missingMusicIds.join(
+              ", "
+            )}`
+          );
+        }
+
+        const adicionarMusica = await prisma.user.update({
+          where: { id },
+          data: {
+            gostei: {
+              connect: musicas.map((idMusica: any) => ({
+                id: idMusica,
+              })),
+            },
+          },
+          include: {
+            tags: true,
+            gostei: true,
+            musica: true,
+          },
+        });
+
+        res.status(201).json({
+          message: "Música(s) adicionado com sucesso!",
+          playlist: adicionarMusica,
+        });
+      } catch (error) {
+        if (error instanceof ApiError) {
+          res.status(error.statusCode).json({ message: error.message });
+        } else {
+          console.error(error);
+          throw new ApiError(
+            "Não foi possível adicionar a música com gostei!",
+            500,
+            res
+          );
+        }
+      }
+    });
+  }
+
+  async removeLikedSong(req: Request, res: Response) {
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new UnauthorizedError("Token não fornecido", res);
+    }
+
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
+      const userId = req.params.id;
+      const id = parseInt(userId, 10);
+
+      if (err) {
+        console.error(err);
+        throw new ApiError(err.toString(), 500, res);
+      }
+      if (decoded && decoded.cargo) {
+        const userCargo = decoded.cargo;
+      } else {
+        console.log(decoded);
+        throw new UnauthorizedError("Token inválido", res);
+      }
+
+      try {
+        prisma.user
+          .findUnique({
+            where: {
+              id,
+            },
+          })
+          .then((user) => {
+            if (user) {
+              throw new NotFoundError(
+                "Usuário não encontrado! Verifique o ID do usuário!",
+                res
+              );
+            }
+          });
+
+        const { musicas } = req.body;
+
+        if (!Array.isArray(musicas)) {
+          return res.send("Por favor, passe um array de IDs de músicas!");
+        }
+
+        const verificarMusicas = await prisma.music.findMany({
+          where: {
+            id: {
+              in: musicas,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        const foundMusicIds = verificarMusicas.map((musica) => musica.id);
+        const missingMusicIds = musicas.filter(
+          (id) => !foundMusicIds.includes(id)
+        );
+
+        if (missingMusicIds.length > 0) {
+          return res.send(
+            `As seguintes músicas não foram encontradas: ${missingMusicIds.join(
+              ", "
+            )}`
+          );
+        }
+
+        const adicionarMusica = await prisma.user.update({
+          where: { id },
+          data: {
+            gostei: {
+              disconnect: musicas.map((idMusica: any) => ({
+                id: idMusica,
+              })),
+            },
+          },
+          include: {
+            tags: true,
+            gostei: true,
+            musica: true,
+          },
+        });
+
+        res.status(201).json({
+          message: "Música(s) removidas com sucesso!",
+          playlist: adicionarMusica,
+        });
+      } catch (error) {
+        if (error instanceof ApiError) {
+          res.status(error.statusCode).json({ message: error.message });
+        } else {
+          console.error(error);
+          throw new ApiError(
+            "Não foi possível remover a música com gostei!",
+            500,
+            res
+          );
+        }
+      }
+    });
   }
 }
 
