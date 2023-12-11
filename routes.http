@@ -24,7 +24,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3333/tags/
+GET http://localhost:3333/user/
 Content-Type: application/json
 
 ###
@@ -81,7 +81,7 @@ Content-Type: application/json
 ###
 POST http://localhost:3333/playlist/create
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAyMDY2NjY5LCJleHAiOjE3MDIwOTU0Njl9.UVIH25umQEyVY5JwiZpFv8alx5aNQAtfHFYAecHnJMs
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTcwMjMxMjgyOSwiZXhwIjoxNzAyMzQxNjI5fQ.3H9YFHnwKgVVaHNQ_GGXWFXxhzWf9a7mXSdiS8MKDCA
 
 {
     "nome": "RITA LEE GLOBAL",
@@ -97,7 +97,13 @@ DELETE http://localhost:3333/music/delete/21
 Content-Type: application/json
 Authorization: 
 ###
-GET http://localhost:3333/user/1
+POST http://localhost:3333/user/add/like/2
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTcwMjMyNTIwOCwiZXhwIjoxNzAyMzU0MDA4fQ.KxIu5AqsI2jkPQB2ooOq44qgSvx2XBQPzWSEC4YD_o0
+
+{
+    "musicas": [17]
+}
 
 ### 
 POST http://localhost:3333/user/login

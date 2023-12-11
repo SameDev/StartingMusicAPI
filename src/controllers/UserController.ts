@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, json } from "express";
 import getUserByIdDB from "../functions/userFunctions";
 import prisma from "../database";
 import bcrypt from "bcrypt";
@@ -8,7 +8,7 @@ import {
   BadRequestError,
   NotFoundError,
   ApiError,
-} from "../helpers/api-erros"; 
+} from "../helpers/api-erros";
 
 class UserController {
   updateUser(req: Request, res: Response) {
@@ -161,23 +161,25 @@ class UserController {
   }
 
   getAllUsers(req: Request, res: Response) {
-    prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        nome: true,
-        cargo: true,
-        foto_perfil: true,
-        data_nasc: true,
-        gostei: true
-      }
-    })
-    .then((user) => {
-      res.send(user)
-    })
-    .catch((error: Error) => {
-      throw new ApiError("Ocorreu um erro!\n"+error, 500, res)
-    });
+    prisma.user
+      .findMany({
+        select: {
+          id: true,
+          email: true,
+          nome: true,
+          cargo: true,
+          foto_perfil: true,
+          data_nasc: true,
+          gostei: true,
+          playlist: true,
+        },
+      })
+      .then((user) => {
+        res.status(200).json({ user });
+      })
+      .catch((error: Error) => {
+        throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
+      });
   }
 
   getUserById(req: Request, res: Response) {
@@ -187,7 +189,7 @@ class UserController {
     getUserByIdDB(userId, res)
       .then((user) => {
         if (user) {
-          res.status(200).json(user);
+          res.status(200).json({ user });
         } else {
           throw new NotFoundError("Usuário não encontrado", res);
         }
@@ -262,7 +264,7 @@ class UserController {
             },
           })
           .then((user) => {
-            if (user) {
+            if (!user) {
               throw new NotFoundError(
                 "Usuário não encontrado! Verifique o ID do usuário!",
                 res
@@ -309,16 +311,21 @@ class UserController {
               })),
             },
           },
-          include: {
-            tags: true,
+          select: {
+            id: true,
+            email: true,
+            nome: true,
+            cargo: true,
+            foto_perfil: true,
+            data_nasc: true,
             gostei: true,
-            musica: true,
+            playlist: true,
           },
         });
 
         res.status(201).json({
           message: "Música(s) adicionado com sucesso!",
-          playlist: adicionarMusica,
+          user: adicionarMusica,
         });
       } catch (error) {
         if (error instanceof ApiError) {
@@ -364,7 +371,7 @@ class UserController {
             },
           })
           .then((user) => {
-            if (user) {
+            if (!user) {
               throw new NotFoundError(
                 "Usuário não encontrado! Verifique o ID do usuário!",
                 res
@@ -411,16 +418,21 @@ class UserController {
               })),
             },
           },
-          include: {
-            tags: true,
+          select: {
+            id: true,
+            email: true,
+            nome: true,
+            cargo: true,
+            foto_perfil: true,
+            data_nasc: true,
             gostei: true,
-            musica: true,
+            playlist: true
           },
         });
 
         res.status(201).json({
           message: "Música(s) removidas com sucesso!",
-          playlist: adicionarMusica,
+          user: adicionarMusica,
         });
       } catch (error) {
         if (error instanceof ApiError) {

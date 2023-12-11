@@ -172,7 +172,7 @@ class MusicController {
           include: {
             tags: true,
             playlist: true,
-            userLiked: {
+            usuarioGostou: {
               select: {
                 id: true,
                 nome: true,
@@ -285,7 +285,7 @@ class MusicController {
                     id: true,
                   },
                 },
-                userLiked: {
+                usuarioGostou: {
                   select: {
                     id: true,
                     nome: true,
@@ -308,7 +308,7 @@ class MusicController {
                 },
               },
               tags: true,
-              userLiked: {
+              usuarioGostou: {
                 select: {
                   id: true,
                   nome: true,
@@ -333,7 +333,7 @@ class MusicController {
                 },
               },
               playlist: true,
-              userLiked: {
+              usuarioGostou: {
                 select: {
                   id: true,
                   nome: true,

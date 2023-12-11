@@ -35,17 +35,17 @@ model Tags {
 }
 
 model Music {
-  id        Int        @id @default(autoincrement())
-  nome      String     @db.VarChar(25)
-  artista   String
-  url       String
-  duracao   String     @db.VarChar(5)
-  data_lanc DateTime
-  image_url String?
-  userLiked User[]     @relation("LikedSongs")
-  playlist  Playlist[] @relation("MusicToPlaylist")
-  tags      Tags[]     @relation("MusicToTags")
-  artistaId User[]     @relation("MusicToUser")
+  id            Int        @id @default(autoincrement())
+  nome          String     @db.VarChar(25)
+  artista       String
+  url           String
+  duracao       String     @db.VarChar(5)
+  data_lanc     DateTime
+  image_url     String?
+  usuarioGostou User[]     @relation("LikedSongs")
+  playlist      Playlist[] @relation("MusicToPlaylist")
+  tags          Tags[]     @relation("MusicToTags")
+  artistaId     User[]     @relation("MusicToUser")
 
   @@map("tb_musicas")
 }
