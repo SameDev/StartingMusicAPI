@@ -24,7 +24,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3333/user/
+GET http://localhost:3333/tags
 Content-Type: application/json
 
 ###
