@@ -17,8 +17,8 @@ model User {
   data_nasc   DateTime
   senha       String     @db.VarChar(200)
   playlist    Playlist[]
-  musica      Music[]    @relation("MusicToUser")
   gostei      Music[]    @relation("LikedSongs")
+  musica      Music[]    @relation("MusicToUser")
   tags        Tags[]     @relation("TagsToUser")
 
   @@map("tb_usuario")

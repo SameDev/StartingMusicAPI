@@ -8,7 +8,9 @@
     "scripts": {
         "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules src/server.ts",
         "build": "tsc",
-        "build-deploy": "npm i && npx prisma db pull && npx prisma generate && tsc && cp -r ./src/public ./dist"
+        "db": "npx prisma db pull && npx prisma generate",
+        "copy-public": "cp -r ./src/public ./dist",
+        "build-deploy": "npm i && npm run db && npm run build && npm run copy-public"
     },
     "dependencies": {
         "@prisma/client": "^5.7.0",
