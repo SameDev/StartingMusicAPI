@@ -11,7 +11,7 @@ import {
 } from "../helpers/api-erros";
 
 class UserController {
-  updateUser(req: Request, res: Response) {
+  async updateUser(req: Request, res: Response) {
     const { nome, email, cargo, data_nasc, senha, url } = req.body;
     const id = req.params.id;
     const userId = parseInt(id, 10);
@@ -82,7 +82,7 @@ class UserController {
     });
   }
 
-  createUser(req: Request, res: Response) {
+  async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc } = req.body;
 
     prisma.user
@@ -121,7 +121,7 @@ class UserController {
       });
   }
 
-  login(req: Request, res: Response) {
+  async login(req: Request, res: Response) {
     const { email, senha } = req.body;
 
     prisma.user
@@ -160,7 +160,7 @@ class UserController {
       });
   }
 
-  getAllUsers(req: Request, res: Response) {
+  async getAllUsers(req: Request, res: Response) {
     prisma.user
       .findMany({
         select: {
@@ -182,7 +182,7 @@ class UserController {
       });
   }
 
-  getUserById(req: Request, res: Response) {
+  async getUserById(req: Request, res: Response) {
     const idUser = req.params.id;
     const userId = parseInt(idUser, 10);
 
@@ -200,7 +200,7 @@ class UserController {
       });
   }
 
-  deleteUser(req: Request, res: Response) {
+  async deleteUser(req: Request, res: Response) {
     const id = req.params.id;
     const userId = parseInt(id, 10);
 

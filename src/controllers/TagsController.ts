@@ -10,7 +10,7 @@ import {
 } from "../helpers/api-erros";
 
 class TagsController {
-  createTag(req: Request, res: Response) {
+  async createTag(req: Request, res: Response) {
     const { nome } = req.body;
 
     const token = req.headers.authorization;
@@ -68,7 +68,7 @@ class TagsController {
         });
     });
   }
-  updateTag(req: Request, res: Response) {
+  async updateTag(req: Request, res: Response) {
     const nome = req.params.nome;
 
     const token = req.headers.authorization;
@@ -136,7 +136,7 @@ class TagsController {
     });
   }
 
-  deleteTag(req: Request, res: Response) {
+  async deleteTag(req: Request, res: Response) {
     const tagId = req.params.id;
 
     console.log(tagId);
@@ -244,9 +244,7 @@ class TagsController {
           },
         });
       }
-
-      const resultQuery = Object.assign({}, tags);
-      res.send({ tags: resultQuery });
+      res.status(200).json({ tags });
     } catch (error) {
       throw new NotFoundError("Ocorreu um erro!", res);
       console.error(error);

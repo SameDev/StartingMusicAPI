@@ -9,7 +9,7 @@ import {
 } from "../helpers/api-erros";
 
 class MusicController {
-  uploadMusic(req: Request, res: Response) {
+  async uploadMusic(req: Request, res: Response) {
     const { nome, artista, artistaId, url, duracao, tags, imageUrl } = req.body;
 
     const token = req.headers.authorization;
@@ -344,8 +344,7 @@ class MusicController {
           });
         }
 
-        const resultQuery = Object.assign({}, songs);
-        res.send({ songs: resultQuery });
+        res.status(200).json({ songs });
       } catch (error) {
         console.error(error);
         throw new ApiError("Erro de requisição", 500, res);

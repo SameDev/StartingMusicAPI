@@ -145,7 +145,7 @@ class PlaylistController {
     });
   }
 
-  deletePlaylit(req: Request, res: Response) {
+  async deletePlaylit(req: Request, res: Response) {
     const playlistId = req.params.id;
     const id = parseInt(playlistId, 10);
 
