@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id          Int        @id @default(autoincrement())
-  email       String     @unique
-  nome        String     @db.VarChar(25)
-  cargo       Cargo      @default(USUARIO)
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  nome        String       @db.VarChar(25)
+  cargo       Cargo        @default(USUARIO)
   foto_perfil String?
   data_nasc   DateTime
-  senha       String     @db.VarChar(200)
+  senha       String       @db.VarChar(200)
   playlist    Playlist[]
-  gostei      Music[]    @relation("LikedSongs")
-  musica      Music[]    @relation("MusicToUser")
-  tags        Tags[]     @relation("TagsToUser")
+  Reproducao  Reproducao[]
+  gostei      Music[]      @relation("LikedSongs")
+  musica      Music[]      @relation("MusicToUser")
+  tags        Tags[]       @relation("TagsToUser")
 
   @@map("tb_usuario")
 }
@@ -35,17 +36,18 @@ model Tags {
 }
 
 model Music {
-  id            Int        @id @default(autoincrement())
-  nome          String     @db.VarChar(25)
+  id            Int          @id @default(autoincrement())
+  nome          String       @db.VarChar(25)
   artista       String
   url           String
-  duracao       String     @db.VarChar(5)
+  duracao       String       @db.VarChar(5)
   data_lanc     DateTime
   image_url     String?
-  usuarioGostou User[]     @relation("LikedSongs")
-  playlist      Playlist[] @relation("MusicToPlaylist")
-  tags          Tags[]     @relation("MusicToTags")
-  artistaId     User[]     @relation("MusicToUser")
+  Reproducao    Reproducao[]
+  usuarioGostou User[]       @relation("LikedSongs")
+  playlist      Playlist[]   @relation("MusicToPlaylist")
+  tags          Tags[]       @relation("MusicToTags")
+  artistaId     User[]       @relation("MusicToUser")
 
   @@map("tb_musicas")
 }
@@ -62,6 +64,26 @@ model Playlist {
   tags      Tags[]   @relation("PlaylistToTags")
 
   @@map("tb_playlists")
+}
+
+model Reproducao {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  songId         Int
+  dataReproducao DateTime
+  tempoEscutado  Int
+  tempoMax       Int
+  music          Music    @relation(fields: [songId], references: [id])
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@map("tb_reproducao")
+}
+
+model Servidores {
+  id  Int    @id @default(autoincrement())
+  url String
+
+  @@map("tb_servidores")
 }
 
 enum Cargo {

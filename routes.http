@@ -52,12 +52,12 @@ Content-Type: application/json
 
 
 ###
-POST http://localhost:3333/playlist/add/song/2
+POST http://localhost:3333/playlist/add/song/3
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJU1RBIiwiaWF0IjoxNzAyMDY2NjY5LCJleHAiOjE3MDIwOTU0Njl9.UVIH25umQEyVY5JwiZpFv8alx5aNQAtfHFYAecHnJMs
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTcwMjUyMTcwNiwiZXhwIjoxNzAyNTUwNTA2fQ.AnZXYQBJ6ZVh2IQ1EFyKT7F1S6SdX9YHo9I1YO8wHOU
 
 {
-    "musicas": [16]
+    "musicas": [17]
 }
 
 ###

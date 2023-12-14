@@ -1,7 +1,7 @@
-import express from "express";
 import cors from "cors";
 import { errorMiddleware } from "./functions/erroHandler";
-import { Request, Response } from "express";
+import blockApp from "./functions/blockApp";
+import express, { Request, Response } from "express";
 import path from "path";
 import bodyParser from 'body-parser';
 import helmet from "helmet";
@@ -12,6 +12,7 @@ import musicRouters  from "./routes/musicRouters";
 import userRouters from "./routes/userRouters";
 import playlistRouters from "./routes/playlistRouters";
 import tagsRouters from "./routes/tagsRouters";
+
 
 const app = express();
 app.use(express.json());
@@ -27,11 +28,14 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+app.use(blockApp);
 
 app.use("/playlist", playlistRouters);
 app.use("/user", userRouters);
