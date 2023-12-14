@@ -9,7 +9,9 @@ const blockApp = async (req: Request, res: Response, next: NextFunction) => {
     data: {
       url: origem
     }
-  });
+  }).then(() => {
+    console.log("certo!")
+  })
 
   const servidoresPermitidos = await prisma.servidores.findMany({
     select: { url: true },
