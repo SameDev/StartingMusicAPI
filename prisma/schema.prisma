@@ -79,13 +79,6 @@ model Reproducao {
   @@map("tb_reproducao")
 }
 
-model Servidores {
-  id  Int    @id @default(autoincrement())
-  url String
-
-  @@map("tb_servidores")
-}
-
 enum Cargo {
   USUARIO
   ADMIN

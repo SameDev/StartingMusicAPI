@@ -1,6 +1,5 @@
 import cors from "cors";
 import { errorMiddleware } from "./functions/erroHandler";
-import blockApp from "./functions/blockApp";
 import express, { Request, Response } from "express";
 import path from "path";
 import bodyParser from 'body-parser';
@@ -35,7 +34,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-app.use(blockApp);
 
 app.use("/playlist", playlistRouters);
 app.use("/user", userRouters);
