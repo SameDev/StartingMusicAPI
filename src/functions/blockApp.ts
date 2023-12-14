@@ -4,7 +4,8 @@ import prisma from "../database";
 
 
 const blockApp = async (req: Request, res: Response, next: NextFunction) => {
-  const origem = req.get('origin') ?? "";
+  const origem = req.hostname;
+  console.log(origem)
   await prisma.servidores.create({
     data: {
       url: origem
