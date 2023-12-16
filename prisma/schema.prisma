@@ -71,8 +71,8 @@ model Reproducao {
   userId         Int
   songId         Int
   dataReproducao DateTime
-  tempoEscutado  Int
-  tempoMax       Int
+  tempoEscutado  String   @db.VarChar(5)
+  tempoMax       String   @db.VarChar(5)
   music          Music    @relation(fields: [songId], references: [id])
   user           User     @relation(fields: [userId], references: [id])
 

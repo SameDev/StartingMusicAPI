@@ -24,7 +24,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3333/tags
+GET http://localhost:3333/music
 Content-Type: application/json
 
 ###
@@ -46,10 +46,21 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiY2FyZ28iOiJBUlRJ
     "artistaId": [1]
 }
 
-### 
-GET http://localhost:3333/music
+###
+GET http://localhost:3333/playback
 Content-Type: application/json
 
+### 
+POST http://localhost:3333/playback/create
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2FyZ28iOiJBRE1JTiIsImlhdCI6MTcwMjc2MTkzMCwiZXhwIjoxNzAyNzkwNzMwfQ.5z0KX-lCbN2WpPoNDy4Hi6dNVTE-ZwYTQPvCPFNMOfs
+
+{
+    "userId": 2,
+    "songId": 18,
+    "dataReproducao": "2023-12-16T01:10:00.000Z",
+    "tempoEscutado": "5:00"
+}
 
 ###
 POST http://localhost:3333/playlist/add/song/3

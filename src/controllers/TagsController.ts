@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import prisma from "../database";
 import jwt from "jsonwebtoken";
 
 import {
   UnauthorizedError,
-  BadRequestError,
   NotFoundError,
   ApiError,
 } from "../helpers/api-erros";
@@ -41,11 +41,11 @@ class TagsController {
       }
 
       prisma.tags.findUnique({
-          where: {
-            nome
-          },
+        where: {
+          nome
+        },
         })
-        .then((existingTag: any) => {
+        .then((existingTag) => {
           if (existingTag) {
             res.status(400).send("Você não pode adicionar uma tag que já existe!");
           } else {
@@ -55,7 +55,7 @@ class TagsController {
                   nome,
                 },
               })
-              .then((tag: any) => {
+              .then((tag) => {
                 res.status(200).send({ Message: "Tag criada com sucesso!", tag: tag });
               })
               .catch((error) => {
@@ -106,7 +106,7 @@ class TagsController {
             nome,
           },
         })
-        .then((result: any) => {
+        .then((result) => {
           if (result) {
             if (result.nome == newNome) {
               res.send("Você não pode atualizar para o mesmo nome!");
@@ -120,7 +120,7 @@ class TagsController {
                   nome,
                 },
               })
-              .then((tag: any) => {
+              .then((tag) => {
                 res.send({ Message: "Tag atualizada com sucesso!", tag: tag });
               })
               .catch((error) => {
@@ -176,7 +176,7 @@ class TagsController {
             id,
           },
         })
-        .then((result: any) => {
+        .then((result) => {
           if (result) {
             prisma.tags
               .delete({

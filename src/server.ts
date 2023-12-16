@@ -11,6 +11,7 @@ import musicRouters  from "./routes/musicRouters";
 import userRouters from "./routes/userRouters";
 import playlistRouters from "./routes/playlistRouters";
 import tagsRouters from "./routes/tagsRouters";
+import playbackRouters from "./routes/playbackRouters";
 
 
 const app = express();
@@ -39,7 +40,7 @@ app.use("/playlist", playlistRouters);
 app.use("/user", userRouters);
 app.use("/tags", tagsRouters);
 app.use("/music", musicRouters);
-
+app.use("/playback", playbackRouters);
 
 app.use((req, res, next) => {
   res.status(404).send("Não existe esta requisição na API!");

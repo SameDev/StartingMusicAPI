@@ -111,3 +111,6 @@ prisma/migrations/
 
 # SvelteKit build / generate output
 .svelte-kit
+
+# HTTP
+routes.http
