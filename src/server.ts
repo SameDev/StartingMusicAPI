@@ -16,7 +16,6 @@ import playbackRouters from "./routes/playbackRouters";
 
 const app = express();
 app.use(express.json());
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -31,6 +30,7 @@ app.use(cors(corsOptions));
 
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/uploads', express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));

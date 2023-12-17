@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../database";
 import jwt from "jsonwebtoken";
+
 import {
   UnauthorizedError,
   BadRequestError,
@@ -8,9 +9,22 @@ import {
   ApiError,
 } from "../helpers/api-erros";
 
+
+
 class MusicController {
   async uploadMusic(req: Request, res: Response) {
-    const { nome, artista, artistaId, url, duracao, tags, imageUrl } = req.body;
+    const { nome, artista,duracao, imageUrl, tags , artistaId } = req.body;
+    const host = req.headers.host || "";
+    const url = host+'/uploads/'+req.file?.filename || "";
+    
+
+    const artistaIdArray = Array.isArray(req.body.artistaId)
+        ? req.body.artistaId
+        : JSON.parse(req.body.artistaId);
+
+    const tagsArray = Array.isArray(req.body.tags)
+        ? req.body.tags
+        : JSON.parse(req.body.tags);
 
     const token = req.headers.authorization;
     if (!token) {
@@ -42,13 +56,13 @@ class MusicController {
       const dateNow = Date.now();
       const dataAtual = new Date(dateNow);
 
-      if (typeof artistaId != "object") {
+      if (typeof artistaIdArray != "object") {
         throw new BadRequestError(
           "Tipo de dado incorreto para artistaId, use um array",
           res
         );
       }
-      if (typeof tags != "object") {
+      if (typeof tagsArray != "object") {
         throw new BadRequestError(
           "Tipo de dado incorreto para tags, use um array",
           res
@@ -65,13 +79,14 @@ class MusicController {
             data_lanc: dataAtual.toISOString(),
             image_url: imageUrl,
             artistaId: {
-              connect: artistaId.map((idArtista: object) => ({
+              connect: artistaIdArray.map((idArtista: object) => ({
                 id: idArtista,
               })),
             },
             tags: {
-              connect: tags.map((tagId: object) => ({ id: tagId })),
+              connect: tagsArray.map((tagId: object) => ({ id: tagId })),
             },
+            
           },
         })
         .then((music) => {
