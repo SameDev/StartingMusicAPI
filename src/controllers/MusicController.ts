@@ -13,16 +13,14 @@ import {
 
 class MusicController {
   async uploadMusic(req: Request, res: Response) {
-    const { nome, artista,duracao, imageUrl, tags , artistaId } = req.body;
-    const host = req.headers.host || "";
-    const url = host+'/uploads/'+req.file?.filename || "";
+    const { nome, artista,duracao, imageUrl, tags , artistaId, url } = req.body;
     
 
-    const artistaIdArray = Array.isArray(req.body.artistaId)
+    const artistaIdArray = Array.isArray(artistaId)
         ? req.body.artistaId
         : JSON.parse(req.body.artistaId);
 
-    const tagsArray = Array.isArray(req.body.tags)
+    const tagsArray = Array.isArray(tags)
         ? req.body.tags
         : JSON.parse(req.body.tags);
 
