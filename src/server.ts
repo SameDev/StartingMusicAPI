@@ -15,9 +15,12 @@ import playbackRouters from "./routes/playbackRouters";
 
 
 const app = express();
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(helmet());
+
 
 const corsOptions = {
   origin: ["http://127.0.0.1:5501", "http://127.0.0.1:5500", "http://localhost:5500", "http://192.168.0.100/", "https://192.168.0.100/", "https://localhost/", "https://127.0.0.1/", "3.134.238.10", "3.129.111.220","52.15.118.168", "https://starting-music.onrender.com"],
@@ -45,9 +48,7 @@ app.use("/playback", playbackRouters);
 app.use((req, res, next) => {
   res.status(404).send("Não existe esta requisição na API!");
 });
-
-app.use(compression)
-app.use(helmet)
+app.use(compression);
 
 app.use(errorMiddleware);
 app.listen(3333, () => console.log("Server running on port 3333"));
