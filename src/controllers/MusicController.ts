@@ -10,19 +10,16 @@ import {
 } from "../helpers/api-erros";
 
 
-
 class MusicController {
   async uploadMusic(req: Request, res: Response) {
-    const { nome, artista,duracao, imageUrl, tags , artistaId, url } = req.body;
-    
-
-    const artistaIdArray = Array.isArray(artistaId)
-        ? req.body.artistaId
-        : JSON.parse(req.body.artistaId);
+    const { nome, artista, duracao, tags, artistaId, songUrl, imageUrl } = req.body;
+      const artistaIdArray = Array.isArray(artistaId)
+    ? req.body.artistaId
+    : JSON.parse(req.body.artistaId || []);
 
     const tagsArray = Array.isArray(tags)
-        ? req.body.tags
-        : JSON.parse(req.body.tags);
+    ? req.body.tags
+    : JSON.parse(req.body.tags) || [];
 
     const token = req.headers.authorization;
     if (!token) {
@@ -72,7 +69,7 @@ class MusicController {
           data: {
             nome,
             artista,
-            url,
+            url: songUrl,
             duracao,
             data_lanc: dataAtual.toISOString(),
             image_url: imageUrl,
