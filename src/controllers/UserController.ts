@@ -142,21 +142,25 @@ class UserController {
 
               res.setHeader("Authorization", `${token}`);
 
-              return res.status(200).json({
+              res.status(200).json({
                 Messagem: "Token Criado!",
                 user: userLogin,
               });
+              return;
             } else {
-              return throw new BadRequestError("Senha incorreta", res);
+              throw new BadRequestError("Senha incorreta", res);
+              return;
             }
           });
         } else {
-          return throw new NotFoundError("Usuário não encontrado", res);
+          throw new NotFoundError("Usuário não encontrado", res);
+          return;
         }
       })
       .catch((error) => {
         console.error(error);
-        return throw new ApiError("Erro ao autenticar o usuário", 500, res);
+        throw new ApiError("Erro ao autenticar o usuário", 500, res);
+        return;
       });
   }
 
