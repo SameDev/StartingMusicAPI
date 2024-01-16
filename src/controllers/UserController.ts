@@ -122,47 +122,47 @@ class UserController {
   }
 
   async login(req: Request, res: Response) {
-    const { email, senha } = req.body;
-
-    prisma.user
-      .findUnique({ where: { email } })
-      .then((user) => {
-        if (user) {
-          bcrypt.compare(senha, user.senha).then((verifyPass) => {
-            if (verifyPass) {
-              const token = jwt.sign(
-                { id: user.id, cargo: user.cargo },
-                process.env.JWT_PASS ?? "",
-                {
-                  expiresIn: "8h",
-                }
-              );
-
-              const { senha: _, ...userLogin } = user;
-
-              res.setHeader("Authorization", `${token}`);
-
-              res.status(200).json({
-                Messagem: "Token Criado!",
-                user: userLogin,
-              });
-              return;
-            } else {
-              throw new BadRequestError("Senha incorreta", res);
-              return;
+    try {
+      const { email, senha } = req.body;
+  
+      console.log(email);
+      console.log(req.body);
+  
+      const user = await prisma.user.findUnique({ where: { email } });
+  
+      if (user) {
+        const verifyPass = await bcrypt.compare(senha, user.senha);
+  
+        if (verifyPass) {
+          const token = jwt.sign(
+            { id: user.id, cargo: user.cargo },
+            process.env.JWT_PASS ?? "",
+            {
+              expiresIn: "8h",
             }
+          );
+  
+          const { senha: _, ...userLogin } = user;
+  
+          res.setHeader("Authorization", `${token}`);
+  
+          res.status(200).json({
+            Messagem: "Token Criado!",
+            user: userLogin,
           });
         } else {
-          throw new NotFoundError("Usuário não encontrado", res);
-          return;
+          throw new BadRequestError("Senha incorreta", res);
         }
-      })
-      .catch((error) => {
-        console.error(error);
-        throw new ApiError("Erro ao autenticar o usuário", 500, res);
-        return;
-      });
+      } else {
+        throw new NotFoundError("Usuário não encontrado", res);
+      }
+    } catch (error) {
+      console.error(error);
+  
+      throw new ApiError("Erro ao autenticar o usuário", 500, res);
+    }
   }
+  
 
   async getAllUsers(req: Request, res: Response) {
     prisma.user
