@@ -125,9 +125,6 @@ class UserController {
     try {
       const { email, senha } = req.body;
   
-      console.log(email);
-      console.log(req.body);
-  
       const user = await prisma.user.findUnique({ where: { email } });
   
       if (user) {
@@ -146,22 +143,36 @@ class UserController {
   
           res.setHeader("Authorization", `${token}`);
   
-          res.status(200).json({
+          return res.status(200).json({
             Messagem: "Token Criado!",
             user: userLogin,
           });
         } else {
+          // Senha incorreta
           throw new BadRequestError("Senha incorreta", res);
         }
       } else {
+        // Usuário não encontrado
         throw new NotFoundError("Usuário não encontrado", res);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
   
-      throw new ApiError("Erro ao autenticar o usuário", 500, res);
+      if (error instanceof ApiError) {
+        return res.status(error.statusCode).json({
+          message: error.message,
+          maisInfo: error.message,
+        });
+      }
+  
+      // Erro desconhecido, tratamento padrão
+      return res.status(500).json({
+        message: "Erro interno do servidor",
+        maisInfo: error.message,
+      });
     }
   }
+  
   
 
   async getAllUsers(req: Request, res: Response) {
