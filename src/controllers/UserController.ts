@@ -148,11 +148,9 @@ class UserController {
             user: userLogin,
           });
         } else {
-          // Senha incorreta
           throw new BadRequestError("Senha incorreta", res);
         }
       } else {
-        // Usuário não encontrado
         throw new NotFoundError("Usuário não encontrado", res);
       }
     } catch (error: any) {

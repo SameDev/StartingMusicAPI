@@ -360,6 +360,35 @@ class MusicController {
         throw new ApiError("Erro de requisição", 500, res);
       }
     }
+    /* USE APENAS SE SOUBER OQ ESTÀ FAZENDO!
+
+    async deleteAll(req: Request, res: Response) {
+      try {
+        const ids = await prisma.music.findMany({ select: { id: true } });
+    
+        const idArray = ids.map((music) => music.id);
+    
+        await prisma.reproducao.deleteMany({
+          where: {
+            songId: {
+              in: idArray,
+            },
+          },
+        });
+
+        await prisma.music.deleteMany({
+          where: {
+            id: {
+              in: idArray,
+            },
+          },
+        });
+    
+        res.send("Foi! Excluidas com sucesso!");
+      } catch (error) {
+        res.send("Erro aí! \n" + error);
+      }
+    }   */
   }
 
 export default new MusicController();
