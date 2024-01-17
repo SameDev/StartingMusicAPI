@@ -9,6 +9,7 @@ import {
   NotFoundError,
   ApiError,
 } from "../helpers/api-erros";
+import { Music } from "@prisma/client";
 
 class UserController {
   async updateUser(req: Request, res: Response) {
@@ -460,6 +461,33 @@ class UserController {
         }
       }
     });
+  }
+
+  async getMusicUser(req: Request, res: Response) {
+    const idParam = req.params.id;
+    const id = parseInt(idParam);
+
+    
+  try {
+    const userMusics = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        musica: true,
+      },
+    });
+
+    if (userMusics) {
+      const musics: Music[] = userMusics.musica || {};
+      res.json(musics);
+    } else {
+      res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+  } catch (error) {
+      throw new ApiError("Ocorreu um erro!\n"+error, 500, res);
+      
+    }
   }
 }
 

@@ -47,7 +47,6 @@ class MusicController {
           }
         }
       } else {
-        console.log(decoded);
         throw new UnauthorizedError("Token inválido", res);
       }
 
