@@ -23,10 +23,7 @@ class MusicController {
     const tagsArray = Array.isArray(tags)
     ? req.body.tags
     : JSON.parse(req.body.tags) || [];
-
-    console.log(artistaId)
-    console.log(artistaIdArray)
-
+    
     const token = req.headers.authorization;
     if (!token) {
       throw new UnauthorizedError("Token não fornecido", res);
