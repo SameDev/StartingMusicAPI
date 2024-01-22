@@ -471,7 +471,7 @@ class UserController {
   try {
     const userMusics = await prisma.user.findUnique({
       where: {
-        id: id,
+        id,
       },
       include: {
         musica: true,
@@ -487,6 +487,28 @@ class UserController {
   } catch (error) {
       throw new ApiError("Ocorreu um erro!\n"+error, 500, res);
       
+    }
+  }
+  async getLikedSongs(req: Request, res: Response) {
+    const idParam = req.params.id;
+    const id = parseInt(idParam);
+
+    try {
+      const userLikedMusics = await prisma.user.findUnique({
+        where: {
+          id
+        },
+        select: {
+          gostei: true
+        }
+      });
+
+      if (userLikedMusics) {
+        const musics: Music[] = userLikedMusics.gostei || {};
+        res.json(musics);
+      }
+    } catch (error) {
+      throw new ApiError("Ocorreu um erro!\n"+error, 500, res);
     }
   }
 }

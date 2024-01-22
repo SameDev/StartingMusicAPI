@@ -12,6 +12,7 @@ router.delete("/delete/:id", UserController.deleteUser);
 router.get("/:id", UserController.getUserById);
 router.get("/", UserController.getAllUsers);
 router.get("/songs/:id", UserController.getMusicUser);
+router.get("/songs/liked/:id", UserController.getLikedSongs)
 
 router.post("/add/like/:id" , UserController.addLikedSong);
 router.post("/remove/like/:id", UserController.removeLikedSong);
