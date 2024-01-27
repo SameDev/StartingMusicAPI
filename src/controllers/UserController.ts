@@ -474,9 +474,7 @@ class UserController {
         id,
       },
       include: {
-        musica: {
-          tags: true
-        }
+        musica: true
       },
     });
 
