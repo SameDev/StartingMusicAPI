@@ -9,18 +9,21 @@ datasource db {
 }
 
 model User {
-  id          Int          @id @default(autoincrement())
-  email       String       @unique
-  nome        String       @db.VarChar(25)
-  cargo       Cargo        @default(USUARIO)
-  foto_perfil String?
-  data_nasc   DateTime
-  senha       String       @db.VarChar(200)
-  playlist    Playlist[]
-  Reproducao  Reproducao[]
-  gostei      Music[]      @relation("LikedSongs")
-  musica      Music[]      @relation("MusicToUser")
-  tags        Tags[]       @relation("TagsToUser")
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  nome         String       @db.VarChar(25)
+  cargo        Cargo        @default(USUARIO)
+  foto_perfil  String?
+  data_nasc    DateTime
+  senha        String       @db.VarChar(200)
+  playlist     Playlist[]
+  Reproducao   Reproducao[]
+  gostei       Music[]      @relation("LikedSongs")
+  musica       Music[]      @relation("MusicToUser")
+  album        Album[]      @relation("AlbumToUser")
+  tags         Tags[]       @relation("TagsToUser")
+  gostei_album Album[]      @relation("LikedAlbums")
+  comentarios  Comments[]
 
   @@map("tb_usuario")
 }
@@ -31,6 +34,7 @@ model Tags {
   musicas  Music[]    @relation("MusicToTags")
   playlist Playlist[] @relation("PlaylistToTags")
   usuario  User[]     @relation("TagsToUser")
+  albums   Album[]    @relation("AlbumsToTags")
 
   @@map("tb_tags")
 }
@@ -48,8 +52,19 @@ model Music {
   playlist      Playlist[]   @relation("MusicToPlaylist")
   tags          Tags[]       @relation("MusicToTags")
   artistaId     User[]       @relation("MusicToUser")
+  comentarios   Comments[]   @relation("MusicToComments")
+  albumId       Int
+  album         Album        @relation(fields: [albumId], references: [id])
 
   @@map("tb_musicas")
+}
+
+model Comments {
+  id      Int     @id @default(autoincrement())
+  nome    String  @db.VarChar(25)
+  userId  Int
+  autor   User    @relation(fields: [userId], references: [id])
+  musicas Music[] @relation("MusicToComments")
 }
 
 model Playlist {
@@ -77,6 +92,27 @@ model Reproducao {
   user           User     @relation(fields: [userId], references: [id])
 
   @@map("tb_reproducao")
+}
+
+model Album {
+  id            Int        @id @default(autoincrement())
+  lancamento    Lancamento @default(SINGLE)
+  nome          String
+  artista       String
+  image_url     String?
+  data_lanc     DateTime
+  usuarioGostou User[]     @relation("LikedAlbums")
+  tags          Tags[]     @relation("AlbumsToTags")
+  artistaId     User[]     @relation("AlbumToUser")
+  musicas       Music[]
+
+  @@map("tb_album")
+}
+
+enum Lancamento {
+  EP
+  ALBUM
+  SINGLE
 }
 
 enum Cargo {

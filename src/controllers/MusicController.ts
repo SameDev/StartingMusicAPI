@@ -12,7 +12,7 @@ import {
 
 class MusicController {
   async uploadMusic(req: Request, res: Response) {
-    const { nome, artista, duracao, tags, artistaId, songUrl, imageUrl } = req.body;
+    const { nome, artista, duracao, tags, artistaId, songUrl, imageUrl, date } = req.body;
       const artistaIdArray = Array.isArray(artistaId)
     ? req.body.artistaId
     : JSON.parse(req.body.artistaId || []);
@@ -29,7 +29,7 @@ class MusicController {
       throw new UnauthorizedError("Token não fornecido", res);
     }
 
-    jwt.verify(token, process.env.JWT_PASS ?? "", (err, decoded: any) => {
+    jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
       if (err) {
         console.error(err);
         throw new UnauthorizedError("Token inválido", res);
@@ -50,9 +50,6 @@ class MusicController {
         throw new UnauthorizedError("Token inválido", res);
       }
 
-      const dateNow = Date.now();
-      const dataAtual = new Date(dateNow);
-
       if (typeof artistaIdArray != "object") {
         throw new BadRequestError(
           "Tipo de dado incorreto para artistaId, use um array",
@@ -66,14 +63,30 @@ class MusicController {
         );
       }
 
-      prisma.music
+      prisma.album.create({
+        data: {
+          nome,
+          artista,
+          image_url: imageUrl,
+          data_lanc: date.toISOString(),
+          artistaId: {
+            connect: artistaIdArray.map((idArtista: object) => ({
+              id: idArtista,
+            }))
+          },
+          tags: {
+            connect: tagsArray.map((tagId: object) => ({ id: tagId })),
+          },
+        }
+      }).then((album) => {
+        prisma.music
         .create({
           data: {
             nome,
             artista,
             url: songUrl,
             duracao,
-            data_lanc: dataAtual.toISOString(),
+            data_lanc: date.toISOString(),
             image_url: imageUrl,
             artistaId: {
               connect: artistaIdArray.map((idArtista: object) => ({
@@ -83,7 +96,7 @@ class MusicController {
             tags: {
               connect: tagsArray.map((tagId: object) => ({ id: tagId })),
             },
-            
+            albumId: album.id
           },
         })
         .then((music) => {
@@ -95,6 +108,7 @@ class MusicController {
           console.error(error);
           throw new ApiError("Não foi possível criar a música", 500, res);
         });
+      })      
     });
   }
 

@@ -84,7 +84,7 @@ class UserController {
   }
 
   async createUser(req: Request, res: Response) {
-    const { nome, email, senha, data_nasc } = req.body;
+    const { nome, email, senha, data_nasc, cargo } = req.body;
 
     prisma.user
       .findUnique({
@@ -104,6 +104,7 @@ class UserController {
                   email,
                   senha: hashPassword,
                   data_nasc,
+                  cargo
                 },
               })
               .then(() => {
@@ -474,8 +475,13 @@ class UserController {
         id,
       },
       include: {
-        musica: true,
+        musica: {
+          include: {
+            tags: true
+          }
+        },
       },
+    
     });
 
     if (userMusics) {
