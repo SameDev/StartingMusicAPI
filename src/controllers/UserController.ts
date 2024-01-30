@@ -479,7 +479,7 @@ class UserController {
           include: {
             tags: true
           }
-        },
+        }
       },
     
     });
