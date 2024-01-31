@@ -194,7 +194,7 @@ class MusicController {
             connect: tags.map((tagId: object) => ({ id: tagId })),
           };
 
-        if (dataToUpdate.tags < 0) {
+        if (Array.isArray(tags) && tags.length === 0) {
           await prisma.music.update({
             where: {
               id
