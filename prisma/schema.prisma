@@ -9,21 +9,22 @@ datasource db {
 }
 
 model User {
-  id           Int          @id @default(autoincrement())
-  email        String       @unique
-  nome         String       @db.VarChar(25)
-  cargo        Cargo        @default(USUARIO)
-  foto_perfil  String?
-  data_nasc    DateTime
-  senha        String       @db.VarChar(200)
-  comentarios  Comments[]
-  playlist     Playlist[]
-  Reproducao   Reproducao[]
-  album        Album[]      @relation("AlbumToUser")
-  gostei_album Album[]      @relation("LikedAlbums")
-  gostei       Music[]      @relation("LikedSongs")
-  musica       Music[]      @relation("MusicToUser")
-  tags         Tags[]       @relation("TagsToUser")
+  id            Int          @id @default(autoincrement())
+  email         String       @unique
+  nome          String       @db.VarChar(25)
+  cargo         Cargo        @default(USUARIO)
+  foto_perfil   String?
+  data_nasc     DateTime
+  senha         String       @db.VarChar(200)
+  banner_perfil String?
+  comentarios   Comments[]
+  playlist      Playlist[]
+  Reproducao    Reproducao[]
+  album         Album[]      @relation("AlbumToUser")
+  gostei_album  Album[]      @relation("LikedAlbums")
+  gostei        Music[]      @relation("LikedSongs")
+  musica        Music[]      @relation("MusicToUser")
+  tags          Tags[]       @relation("TagsToUser")
 
   @@map("tb_usuario")
 }

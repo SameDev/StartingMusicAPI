@@ -29,7 +29,7 @@ class MusicController {
       throw new UnauthorizedError("Token não fornecido", res);
     }
 
-    const date = new Date(data_lanc)
+    const date = new Date(data_lanc);
 
     jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
       if (err) {
@@ -193,6 +193,19 @@ class MusicController {
           dataToUpdate.tags = {
             connect: tags.map((tagId: object) => ({ id: tagId })),
           };
+
+        if (dataToUpdate.tags < 0) {
+          await prisma.music.update({
+            where: {
+              id
+            },
+            data: {
+              tags: {
+                set: []
+              }
+            }
+          })
+        }
 
         const updatedMusic = await prisma.music.update({
           where: { id },
