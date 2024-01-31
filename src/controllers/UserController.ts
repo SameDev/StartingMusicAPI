@@ -86,6 +86,12 @@ class UserController {
   async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc, cargo } = req.body;
 
+    const date = new Date(data_nasc)
+
+    if (cargo === "ADMIN") {
+      return res.status(501).json("Você não tem permissão para isso!")
+    }
+
     prisma.user
       .findUnique({
         where: {
@@ -103,22 +109,22 @@ class UserController {
                   nome,
                   email,
                   senha: hashPassword,
-                  data_nasc,
+                  data_nasc: date.toISOString(),
                   cargo
                 },
               })
               .then(() => {
-                res.status(201).json("Usuário criado com sucesso");
+                return res.status(201).json("Usuário criado com sucesso");
               });
           });
         }
       })
       .catch((error) => {
         if (error instanceof BadRequestError) {
-          res.status(400).json({ Error: "Já existe esse úsuario!" });
+          return res.status(400).json({ Error: "Já existe esse úsuario!" });
         } else {
           console.error(error);
-          res.status(500).json({ Error: "Erro interno do servidor" });
+          return res.status(500).json({ Error: "Erro interno do servidor" });
         }
       });
   }

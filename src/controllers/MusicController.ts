@@ -12,7 +12,7 @@ import {
 
 class MusicController {
   async uploadMusic(req: Request, res: Response) {
-    const { nome, artista, duracao, tags, artistaId, songUrl, imageUrl, date } = req.body;
+    const { nome, artista, duracao, tags, artistaId, songUrl, imageUrl, data_lanc } = req.body;
       const artistaIdArray = Array.isArray(artistaId)
     ? req.body.artistaId
     : JSON.parse(req.body.artistaId || []);
@@ -28,6 +28,8 @@ class MusicController {
     if (!token) {
       throw new UnauthorizedError("Token não fornecido", res);
     }
+
+    const date = new Date(data_lanc)
 
     jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
       if (err) {
