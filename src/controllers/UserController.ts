@@ -13,7 +13,7 @@ import { Music } from "@prisma/client";
 
 class UserController {
   async updateUser(req: Request, res: Response) {
-    const { nome, email, cargo, data_nasc, senha, url } = req.body;
+    const { nome, email, cargo, data_nasc, senha, url, tags } = req.body;
     const id = req.params.id;
     const userId = parseInt(id, 10);
 
@@ -34,7 +34,7 @@ class UserController {
           .findUnique({
             where: { email: newEmail },
           })
-          .then((existingUser) => {
+          .then(async (existingUser) => {
             if (existingUser && existingUser.id !== userId) {
               throw new BadRequestError(
                 "Já existe um usuário com este email",
@@ -49,6 +49,21 @@ class UserController {
 
             const newUrl = url || user.foto_perfil;
 
+            if (Array.isArray(tags) && tags.length === 0) {
+              await prisma.user.update({
+                where: {
+                  id: userId
+                },
+                data: {
+                  tags: {
+                    set: []
+                  }
+                }
+              })
+            }
+
+            const newTags = tags.map((tagId: object) => ({ id: tagId })) || user.tags.map((tagId: object) => ({ id: tagId })) || [];
+
             prisma.user
               .update({
                 where: {
@@ -61,6 +76,9 @@ class UserController {
                   data_nasc: newDataNasc,
                   senha: newSenha,
                   foto_perfil: newUrl,
+                  tags: {
+                    connect: newTags
+                  }
                 },
               })
               .then((updatedUser) => {
@@ -84,12 +102,23 @@ class UserController {
   }
 
   async createUser(req: Request, res: Response) {
-    const { nome, email, senha, data_nasc, cargo } = req.body;
+    const { nome, email, senha, data_nasc, cargo, tags } = req.body;
 
     const date = new Date(data_nasc)
 
     if (cargo === "ADMIN") {
       return res.status(501).json("Você não tem permissão para isso!")
+    }
+
+    const tagsArray = Array.isArray(tags)
+    ? req.body.tags
+    : JSON.parse(req.body.tags) || [];
+
+    if (typeof tagsArray != "object") {
+      throw new BadRequestError(
+        "Tipo de dado incorreto para tags, use um array",
+        res
+      );
     }
 
     prisma.user
@@ -110,8 +139,11 @@ class UserController {
                   email,
                   senha: hashPassword,
                   data_nasc: date.toISOString(),
-                  cargo
-                },
+                  cargo,
+                  tags: {
+                    connect: tagsArray.map((tagId: object) => ({ id: tagId })),
+                  }
+                }
               })
               .then(() => {
                 return res.status(201).json("Usuário criado com sucesso");
@@ -133,7 +165,7 @@ class UserController {
     try {
       const { email, senha } = req.body;
   
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await prisma.user.findUnique({ where: { email }, include: {tags: true} });
   
       if (user) {
         const verifyPass = await bcrypt.compare(senha, user.senha);
@@ -193,6 +225,7 @@ class UserController {
           data_nasc: true,
           gostei: true,
           playlist: true,
+          tags: true
         },
       })
       .then((user) => {

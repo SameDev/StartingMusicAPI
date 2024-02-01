@@ -17,9 +17,6 @@ class MusicController {
     ? req.body.artistaId
     : JSON.parse(req.body.artistaId || []);
 
-    console.log(artistaId)
-    console.log(artistaIdArray)
-
     const tagsArray = Array.isArray(tags)
     ? req.body.tags
     : JSON.parse(req.body.tags) || [];

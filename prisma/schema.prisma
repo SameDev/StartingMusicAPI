@@ -17,6 +17,7 @@ model User {
   data_nasc     DateTime
   senha         String       @db.VarChar(200)
   banner_perfil String?
+  desc          String?
   comentarios   Comments[]
   playlist      Playlist[]
   Reproducao    Reproducao[]
@@ -66,6 +67,10 @@ model Comments {
   userId  Int
   autor   User    @relation(fields: [userId], references: [id])
   musicas Music[] @relation("MusicToComments")
+  resposta String?
+  conteudo String?
+
+  @@map("tb_comments")
 }
 
 model Playlist {
