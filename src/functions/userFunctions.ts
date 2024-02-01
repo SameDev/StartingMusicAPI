@@ -26,7 +26,8 @@ const getUserById = async (userId: number, res: Response) => {
         data_nasc: true,
         gostei: true,
         playlist: true,
-        tags: true
+        tags: true,
+        desc: true
       },
     });
 

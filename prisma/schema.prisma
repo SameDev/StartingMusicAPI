@@ -62,11 +62,11 @@ model Music {
 }
 
 model Comments {
-  id      Int     @id @default(autoincrement())
-  nome    String  @db.VarChar(25)
-  userId  Int
-  autor   User    @relation(fields: [userId], references: [id])
-  musicas Music[] @relation("MusicToComments")
+  id       Int     @id @default(autoincrement())
+  nome     String  @db.VarChar(25)
+  userId   Int
+  autor    User    @relation(fields: [userId], references: [id])
+  musicas  Music[] @relation("MusicToComments")
   resposta String?
   conteudo String?
 
