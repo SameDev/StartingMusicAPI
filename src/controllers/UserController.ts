@@ -13,7 +13,7 @@ import { Music } from "@prisma/client";
 
 class UserController {
   async updateUser(req: Request, res: Response) {
-    const { nome, email, cargo, data_nasc, senha, url, tags, desc } = req.body;
+    const { nome, email, cargo, data_nasc, senha, url, tags, desc, banner } = req.body;
     const id = req.params.id;
     const userId = parseInt(id, 10);
 
@@ -51,6 +51,8 @@ class UserController {
 
             const newDesc = desc || user.desc;
 
+            const newBanner = banner || user.banner_perfil;
+
             if (Array.isArray(tags) && tags.length === 0) {
               await prisma.user.update({
                 where: {
@@ -82,7 +84,8 @@ class UserController {
                   desc: newDesc,
                   tags: {
                     connect: newTags
-                  }
+                  },
+                  banner_perfil: newBanner
                 },
               })
               .then((updatedUser) => {
@@ -106,7 +109,7 @@ class UserController {
   }
 
   async createUser(req: Request, res: Response) {
-    const { nome, email, senha, data_nasc, cargo, tags, desc } = req.body;
+    const { nome, email, senha, data_nasc, cargo, tags, desc, banner } = req.body;
 
     const date = new Date(data_nasc)
 
@@ -147,7 +150,8 @@ class UserController {
                   cargo,
                   tags: {
                     connect: tagsArray.map((tagId: object) => ({ id: tagId })),
-                  }
+                  },
+                  banner_perfil: banner
                 }
               })
               .then(() => {

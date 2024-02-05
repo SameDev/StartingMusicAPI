@@ -27,7 +27,8 @@ const getUserById = async (userId: number, res: Response) => {
         gostei: true,
         playlist: true,
         tags: true,
-        desc: true
+        desc: true,
+        banner_perfil: true
       },
     });
 
