@@ -1,0 +1,13 @@
+{
+  "body": {
+    "content": "ewoiZW1haWwiOiAiY29ucmFkdHNhbXVlbDEyQGdtYWlsLmNvbSIsCiJzZW5oYSI6ICIxMjM0NTY3Igp9",
+    "file": false,
+    "fileSize": false
+  },
+  "headers": {
+    "content-type": "Application/json"
+  },
+  "method": "POST",
+  "title": "New HTTP Request",
+  "url": "http://localhost:3333/user/login"
+}

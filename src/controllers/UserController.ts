@@ -32,7 +32,7 @@ class UserController {
         const newEmail = email === user.email ? user.email : email;
         prisma.user
           .findUnique({
-            where: { email: newEmail },
+            where: { id: userId },
           })
           .then(async (existingUser) => {
             if (existingUser && existingUser.id !== userId) {
@@ -63,6 +63,7 @@ class UserController {
                 }
               })
             }
+
 
             const newTags = tags.map((tagId: object) => ({ id: tagId })) || user.tags.map((tagId: object) => ({ id: tagId })) || [];
 
