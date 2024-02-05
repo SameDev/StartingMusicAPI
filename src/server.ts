@@ -23,7 +23,6 @@ app.use(helmet());
 
 
 const corsOptions = {
-  origin: ["http://127.0.0.1:5501", "http://127.0.0.1:5500", "http://localhost:5500","http://localhost:3000", "http://192.168.0.100/", "https://192.168.0.100/", "https://localhost/", "https://127.0.0.1/", "3.134.238.10", "3.129.111.220","52.15.118.168", "https://starting-music.onrender.com"],
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   credentials: true,
   exposedHeaders: "Authorization",
