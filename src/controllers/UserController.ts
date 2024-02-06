@@ -23,71 +23,66 @@ class UserController {
         throw new UnauthorizedError("Token não fornecido", res);
       }
   
-      jwt.verify(token, process.env.JWT_PASS ?? "", async (err) => {
-        if (err) {
-          console.error(err);
-          throw new UnauthorizedError("Token inválido", res);
-        }
+      const decoded = jwt.verify(token, process.env.JWT_PASS ?? "");
   
-        const user = await getUserByIdDB(userId, res);
-        const newEmail = email === user.email ? user.email : email;
+      const user = await getUserByIdDB(userId, res);
+      const newEmail = email === user.email ? user.email : email;
   
-        const existingUser = await prisma.user.findUnique({
-          where: { email: newEmail },
-        });
+      const existingUser = await prisma.user.findUnique({
+        where: { email: newEmail },
+      });
   
-        if (existingUser && existingUser.id !== userId) {
-          throw new BadRequestError("Já existe um usuário com este email", res);
-        }
+      if (existingUser && existingUser.id !== userId) {
+        throw new BadRequestError("Já existe um usuário com este email", res);
+      }
   
-        const newName = nome || user.nome;
-        const newDataNasc = data_nasc || user.data_nasc;
-        const newSenha = senha ? bcrypt.hashSync(senha, 10) : senha;
-        const newUrl = url || user.foto_perfil;
-        const newDesc = desc || user.desc;
-        const newBanner = banner || user.banner_perfil;
+      const newName = nome || user.nome;
+      const newDataNasc = data_nasc || user.data_nasc;
+      const newSenha = senha ? await bcrypt.hash(senha, 10) : senha;
+      const newUrl = url || user.foto_perfil;
+      const newDesc = desc || user.desc;
+      const newBanner = banner || user.banner_perfil;
   
-        let newTags: any = [];
-        if (Array.isArray(tags) && tags.length > 0) {
-          newTags = tags.map((tagId: object) => ({ id: tagId }));
-        }
+      let newTags: any = [];
+      if (Array.isArray(tags) && tags.length > 0) {
+        newTags = tags.map((tagId: object) => ({ id: tagId }));
+      }
   
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            cargo,
-            nome: newName,
-            email: newEmail,
-            data_nasc: newDataNasc,
-            senha: newSenha,
-            foto_perfil: newUrl,
-            desc: newDesc,
-            tags: {
-              connect: newTags,
-            },
-            banner_perfil: newBanner,
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          cargo,
+          nome: newName,
+          email: newEmail,
+          data_nasc: newDataNasc,
+          senha: newSenha,
+          foto_perfil: newUrl,
+          desc: newDesc,
+          tags: {
+            connect: newTags,
           },
-        });
+          banner_perfil: newBanner,
+        },
+      });
   
-        res.status(200).json({
-          message: "Usuário atualizado com sucesso!",
-          user: {
-            id: userId,
-            nome: newName,
-            email: newEmail,
-            cargo,
-            data_nasc: newDataNasc,
-            foto_perfil: newUrl,
-            desc: newDesc,
-            tags: newTags,
-            banner_perfil: newBanner,
-          },
-        });
+      res.status(200).json({
+        message: "Usuário atualizado com sucesso!",
+        user: {
+          id: userId,
+          nome: newName,
+          email: newEmail,
+          cargo,
+          data_nasc: newDataNasc,
+          foto_perfil: newUrl,
+          desc: newDesc,
+          tags: newTags,
+          banner_perfil: newBanner,
+        },
       });
     } catch (error: any) {
       console.error(error);
   
-      if (error instanceof UnauthorizedError || error instanceof BadRequestError) {
+      if (error instanceof ApiError) {
         return res.status(error.statusCode).json({
           message: error.message,
           maisInfo: error.message,
@@ -99,7 +94,8 @@ class UserController {
         maisInfo: error.message,
       });
     }
-  }  
+  }
+  
   
 
   async createUser(req: Request, res: Response) {
