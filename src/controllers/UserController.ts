@@ -36,7 +36,7 @@ class UserController {
               where: { id: userId },
             })
             .then(async (existingUser) => {
-              if (existingUser && existingUser.id !== userId && existingUser.email == email) {
+              if (existingUser && existingUser.id !== userId && existingUser.email === newEmail) {
                 throw new BadRequestError("Já existe um usuário com este email", res)
               } else {
               const newName = nome || user.nome;
