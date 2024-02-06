@@ -17,98 +17,71 @@ class UserController {
       const { nome, email, cargo, data_nasc, senha, url, tags, desc, banner } = req.body;
       const id = req.params.id;
       const userId = parseInt(id, 10);
-
+  
       const token = req.headers.authorization;
       if (!token) {
         throw new UnauthorizedError("Token não fornecido", res);
       }
-
-      jwt.verify(token, process.env.JWT_PASS ?? "", (err) => {
+  
+      jwt.verify(token, process.env.JWT_PASS ?? "", async (err) => {
         if (err) {
           console.error(err);
           throw new UnauthorizedError("Token inválido", res);
         }
-
-        getUserByIdDB(userId, res).then((user) => {
-          const newEmail = email === user.email ? user.email : email;
-          prisma.user
-            .findUnique({
-              where: { email },
-            })
-            .then(async (existingUser) => {
-              if (existingUser && existingUser.id !== userId && existingUser.email === newEmail) {
-                throw new BadRequestError("Já existe um usuário com este email", res)
-              } else {
-
-              if (email == user.email) {
-                throw new BadRequestError("Já existe um usuário com este email", res)
-              }
-              
-              const newName = nome || user.nome;
-
-              const newDataNasc = data_nasc || user.data_nasc;
-
-              const newSenha = senha ? bcrypt.hashSync(senha, 10) : senha;
-
-              const newUrl = url || user.foto_perfil;
-
-              const newDesc = desc || user.desc;
-
-              const newBanner = banner || user.banner_perfil;
-
-              if (Array.isArray(tags) && tags.length === 0) {
-                await prisma.user.update({
-                  where: {
-                    id: userId
-                  },
-                  data: {
-                    tags: {
-                      set: []
-                    }
-                  }
-                })
-              }
-
-
-              const newTags = tags.map((tagId: object) => ({ id: tagId })) || user.tags.map((tagId: object) => ({ id: tagId })) || [];
-
-              prisma.user
-                .update({
-                  where: {
-                    id: userId,
-                  },
-                  data: {
-                    cargo,
-                    nome: newName,
-                    email: newEmail,
-                    data_nasc: newDataNasc,
-                    senha: newSenha,
-                    foto_perfil: newUrl,
-                    desc: newDesc,
-                    tags: {
-                      connect: newTags
-                    },
-                    banner_perfil: newBanner
-                  },
-                })
-                .then((updatedUser) => {
-                  const { senha: _, ...userLogin } = updatedUser;
-                  res.status(200).json({
-                    message: "Usuário atualizado com sucesso!",
-                    user: userLogin,
-                  });
-                  return
-                })
-                .catch((error) => {
-                  console.error(error);
-                  throw new ApiError(
-                    "Não foi possível atualizar o usuário",
-                    500,
-                    res
-                  );
-                });
-              }
-            });
+  
+        const user = await getUserByIdDB(userId, res);
+        const newEmail = email === user.email ? user.email : email;
+  
+        const existingUser = await prisma.user.findUnique({
+          where: { email: newEmail },
+        });
+  
+        if (existingUser && existingUser.id !== userId) {
+          throw new BadRequestError("Já existe um usuário com este email", res);
+        }
+  
+        const newName = nome || user.nome;
+        const newDataNasc = data_nasc || user.data_nasc;
+        const newSenha = senha ? bcrypt.hashSync(senha, 10) : senha;
+        const newUrl = url || user.foto_perfil;
+        const newDesc = desc || user.desc;
+        const newBanner = banner || user.banner_perfil;
+  
+        let newTags: any = [];
+        if (Array.isArray(tags) && tags.length > 0) {
+          newTags = tags.map((tagId: object) => ({ id: tagId }));
+        }
+  
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            cargo,
+            nome: newName,
+            email: newEmail,
+            data_nasc: newDataNasc,
+            senha: newSenha,
+            foto_perfil: newUrl,
+            desc: newDesc,
+            tags: {
+              connect: newTags,
+            },
+            banner_perfil: newBanner,
+          },
+        });
+  
+        res.status(200).json({
+          message: "Usuário atualizado com sucesso!",
+          user: {
+            id: userId,
+            nome: newName,
+            email: newEmail,
+            cargo,
+            data_nasc: newDataNasc,
+            foto_perfil: newUrl,
+            desc: newDesc,
+            tags: newTags,
+            banner_perfil: newBanner,
+          },
         });
       });
     } catch (error: any) {
@@ -120,12 +93,14 @@ class UserController {
           maisInfo: error.message,
         });
       }
-        return res.status(500).json({
+      return res.status(500).json({
         message: "Erro interno do servidor",
         maisInfo: error.message,
       });
     }
   }
+  
+  
 
   async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc, cargo, tags, desc, banner } = req.body;
