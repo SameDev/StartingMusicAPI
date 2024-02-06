@@ -41,6 +41,7 @@ class UserController {
                   "Já existe um usuário com este email",
                   res
                 );
+                return;
               }
               const newName = nome || user.nome;
 
