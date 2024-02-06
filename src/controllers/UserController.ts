@@ -87,19 +87,19 @@ class UserController {
     } catch (error: any) {
       console.error(error);
   
-      if (error instanceof ApiError) {
+      if (error instanceof UnauthorizedError || error instanceof BadRequestError) {
         return res.status(error.statusCode).json({
           message: error.message,
           maisInfo: error.message,
         });
       }
+  
       return res.status(500).json({
         message: "Erro interno do servidor",
         maisInfo: error.message,
       });
     }
-  }
-  
+  }  
   
 
   async createUser(req: Request, res: Response) {
