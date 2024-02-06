@@ -37,13 +37,9 @@ class UserController {
             })
             .then(async (existingUser) => {
               if (existingUser && existingUser.id !== userId) {
-                throw new BadRequestError(
-                  "Já existe um usuário com este email",
-                  res
-                );
-                return;
-              }
-              const newName = nome || user.nome;
+                throw new BadRequestError("Já existe um usuário com este email", res)
+              } else {
+                const newName = nome || user.nome;
 
               const newDataNasc = data_nasc || user.data_nasc;
 
@@ -96,6 +92,7 @@ class UserController {
                     message: "Usuário atualizado com sucesso!",
                     user: userLogin,
                   });
+                  return
                 })
                 .catch((error) => {
                   console.error(error);
@@ -105,6 +102,7 @@ class UserController {
                     res
                   );
                 });
+              }
             });
         });
       });
