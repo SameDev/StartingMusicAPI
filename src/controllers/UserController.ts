@@ -39,7 +39,7 @@ class UserController {
               if (existingUser && existingUser.id !== userId) {
                 throw new BadRequestError("Já existe um usuário com este email", res)
               } else {
-                const newName = nome || user.nome;
+              const newName = nome || user.nome;
 
               const newDataNasc = data_nasc || user.data_nasc;
 
