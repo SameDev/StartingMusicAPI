@@ -33,7 +33,7 @@ class UserController {
           const newEmail = email === user.email ? user.email : email;
           prisma.user
             .findUnique({
-              where: { id: userId },
+              where: { email },
             })
             .then(async (existingUser) => {
               if (existingUser && existingUser.id !== userId && existingUser.email === newEmail) {
@@ -42,7 +42,6 @@ class UserController {
 
               if (email == user.email) {
                 throw new BadRequestError("Já existe um usuário com este email", res)
-                return;
               }
               
               const newName = nome || user.nome;
