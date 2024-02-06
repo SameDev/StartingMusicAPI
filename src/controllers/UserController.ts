@@ -36,7 +36,7 @@ class UserController {
               where: { id: userId },
             })
             .then(async (existingUser) => {
-              if (existingUser && existingUser.id !== userId) {
+              if (existingUser && existingUser.id !== userId && existingUser.email == email) {
                 throw new BadRequestError("Já existe um usuário com este email", res)
               } else {
               const newName = nome || user.nome;
@@ -115,9 +115,7 @@ class UserController {
           maisInfo: error.message,
         });
       }
-  
-      // Erro desconhecido, tratamento padrão
-      return res.status(500).json({
+        return res.status(500).json({
         message: "Erro interno do servidor",
         maisInfo: error.message,
       });
@@ -127,8 +125,11 @@ class UserController {
   async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc, cargo, tags, desc, banner } = req.body;
 
+    console.log(data_nasc)
+
     const date = new Date(data_nasc)
 
+    console.log(date)
     if (cargo === "ADMIN") {
       return res.status(501).json("Você não tem permissão para isso!")
     }
