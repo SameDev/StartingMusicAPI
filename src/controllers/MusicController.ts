@@ -336,11 +336,11 @@ class MusicController {
                         contains: search.toString(),
                         mode: 'insensitive'
                     },
-                    id: {
-                        equals: parseInt(search.toString(), 10)
-                    }
                 }
-              ]
+              ],
+              id: {
+                equals: parseInt(search.toString(), 10)
+              }
             },
           });
         } else {
