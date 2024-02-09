@@ -326,17 +326,21 @@ class MusicController {
               }
             },
             where: {
-              nome: {
-                contains: search.toString(),
-                mode: "insensitive",
-              },
-              artista: {
-                contains: search.toString(),
-                mode: 'insensitive'
-              },
-              id: {
-                equals: parseInt(search.toString(), 10),
-              }
+              OR: [
+                {
+                    nome: {
+                        contains: search.toString(),
+                        mode: 'insensitive'
+                    },
+                    artista: {
+                        contains: search.toString(),
+                        mode: 'insensitive'
+                    },
+                    id: {
+                        equals: parseInt(search.toString(), 10)
+                    }
+                }
+              ]
             },
           });
         } else {
