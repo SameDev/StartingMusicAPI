@@ -303,7 +303,7 @@ class MusicController {
 
   async listSongs(req: Request, res: Response) {
     const search = req.query.search;
-    
+    const id = req.params.id;
       try {
         let songs;
 
@@ -339,7 +339,7 @@ class MusicController {
                 }
               ],
               id: {
-                equals: parseInt(search.toString(), 10)
+                equals: parseInt(id, 10)
               }
             },
           });
