@@ -96,7 +96,6 @@ class UserController {
     }
   }
   
-  
 
   async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc, cargo, tags, desc, banner } = req.body;

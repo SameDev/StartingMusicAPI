@@ -303,38 +303,9 @@ class MusicController {
 
   async listSongs(req: Request, res: Response) {
     const search = req.query.search;
-    const songsId = req.query.id;
     
       try {
         let songs;
-
-        if (songsId) {
-          const id = parseInt(songsId.toString(), 10);
-
-          if (id) {
-            songs = await prisma.music.findUnique({
-              where: {
-                id,
-              },
-              include: {
-                playlist: true,
-                artistaId: {
-                  select: {
-                    id: true,
-                  },
-                },
-                usuarioGostou: {
-                  select: {
-                    id: true,
-                    nome: true,
-                    email: true
-                  }
-                },
-                tags: true,
-              },
-            });
-          }
-        }
 
         if (search) {
           songs = await prisma.music.findMany({
@@ -359,6 +330,13 @@ class MusicController {
                 contains: search.toString(),
                 mode: "insensitive",
               },
+              artista: {
+                contains: search.toString(),
+                mode: 'insensitive'
+              },
+              id: {
+                equals: parseInt(search.toString(), 10),
+              }
             },
           });
         } else {

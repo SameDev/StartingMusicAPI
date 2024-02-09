@@ -9,24 +9,25 @@ datasource db {
 }
 
 model User {
-  id              Int          @id @default(autoincrement())
-  email           String       @unique
-  nome            String       @db.VarChar(25)
-  cargo           Cargo        @default(USUARIO)
+  id              Int            @id @default(autoincrement())
+  email           String         @unique
+  nome            String         @db.VarChar(25)
+  cargo           Cargo          @default(USUARIO)
   foto_perfil     String?
   data_nasc       DateTime
-  senha           String       @db.VarChar(200)
+  senha           String         @db.VarChar(200)
   banner_perfil   String?
   desc            String?
   comentarios     Comments[]
   playlist        Playlist[]
-  Reproducao      Reproducao[]
-  album           Album[]      @relation("AlbumToUser")
-  gostei_album    Album[]      @relation("LikedAlbums")
-  gostei_comments Comments[]   @relation("LikedComments")
-  gostei          Music[]      @relation("LikedSongs")
-  musica          Music[]      @relation("MusicToUser")
-  tags            Tags[]       @relation("TagsToUser")
+  reproducao      Reproducao[]
+  visualizacao    Visualizacao[]
+  album           Album[]        @relation("AlbumToUser")
+  gostei_album    Album[]        @relation("LikedAlbums")
+  gostei_comments Comments[]     @relation("LikedComments")
+  gostei          Music[]        @relation("LikedSongs")
+  musica          Music[]        @relation("MusicToUser")
+  tags            Tags[]         @relation("TagsToUser")
 
   @@map("tb_usuario")
 }
@@ -43,21 +44,22 @@ model Tags {
 }
 
 model Music {
-  id            Int          @id @default(autoincrement())
-  nome          String       @db.VarChar(25)
+  id            Int            @id @default(autoincrement())
+  nome          String         @db.VarChar(25)
   artista       String
   url           String?
-  duracao       String       @db.VarChar(5)
+  duracao       String         @db.VarChar(5)
   data_lanc     DateTime
   image_url     String?
   albumId       Int
-  album         Album        @relation(fields: [albumId], references: [id])
-  Reproducao    Reproducao[]
-  usuarioGostou User[]       @relation("LikedSongs")
-  comentarios   Comments[]   @relation("MusicToComments")
-  playlist      Playlist[]   @relation("MusicToPlaylist")
-  tags          Tags[]       @relation("MusicToTags")
-  artistaId     User[]       @relation("MusicToUser")
+  album         Album          @relation(fields: [albumId], references: [id])
+  reproducao    Reproducao[]
+  visualizacao  Visualizacao[]
+  usuarioGostou User[]         @relation("LikedSongs")
+  comentarios   Comments[]     @relation("MusicToComments")
+  playlist      Playlist[]     @relation("MusicToPlaylist")
+  tags          Tags[]         @relation("MusicToTags")
+  artistaId     User[]         @relation("MusicToUser")
 
   @@map("tb_musicas")
 }
@@ -85,6 +87,7 @@ model Playlist {
   criador   User     @relation(fields: [userId], references: [id])
   musicas   Music[]  @relation("MusicToPlaylist")
   tags      Tags[]   @relation("PlaylistToTags")
+  album     Album[]  @relation("PlaylistToAlbum")
 
   @@map("tb_playlists")
 }
@@ -102,6 +105,17 @@ model Reproducao {
   @@map("tb_reproducao")
 }
 
+model Visualizacao {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  songId           Int
+  dataVisualizacao DateTime
+  musica           Music    @relation(fields: [songId], references: [id])
+  user             User     @relation(fields: [userId], references: [id])
+
+  @@map("tb_visualizacao")
+}
+
 model Album {
   id            Int        @id @default(autoincrement())
   lancamento    Lancamento @default(SINGLE)
@@ -113,6 +127,7 @@ model Album {
   artistaId     User[]     @relation("AlbumToUser")
   tags          Tags[]     @relation("AlbumsToTags")
   usuarioGostou User[]     @relation("LikedAlbums")
+  playlist      Playlist[] @relation("PlaylistToAlbum")
 
   @@map("tb_album")
 }
