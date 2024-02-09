@@ -9,18 +9,26 @@ import {
   ApiError,
 } from "../helpers/api-erros";
 
-
 class MusicController {
   async uploadMusic(req: Request, res: Response) {
-    const { nome, artista, duracao, tags, artistaId, songUrl, imageUrl, data_lanc } = req.body;
-      const artistaIdArray = Array.isArray(artistaId)
-    ? req.body.artistaId
-    : JSON.parse(req.body.artistaId || []);
+    const {
+      nome,
+      artista,
+      duracao,
+      tags,
+      artistaId,
+      songUrl,
+      imageUrl,
+      data_lanc,
+    } = req.body;
+    const artistaIdArray = Array.isArray(artistaId)
+      ? req.body.artistaId
+      : JSON.parse(req.body.artistaId || []);
 
     const tagsArray = Array.isArray(tags)
-    ? req.body.tags
-    : JSON.parse(req.body.tags) || [];
-    
+      ? req.body.tags
+      : JSON.parse(req.body.tags) || [];
+
     const token = req.headers.authorization;
     if (!token) {
       throw new UnauthorizedError("Token não fornecido", res);
@@ -36,7 +44,6 @@ class MusicController {
       if (decoded) {
         if (decoded.cargo) {
           const userCargo = decoded.cargo;
-          
 
           if (userCargo === "USUARIO") {
             throw new UnauthorizedError(
@@ -62,31 +69,13 @@ class MusicController {
         );
       }
 
-      prisma.album.create({
-        data: {
-          nome,
-          artista,
-          image_url: imageUrl,
-          data_lanc: date.toISOString(),
-          artistaId: {
-            connect: artistaIdArray.map((idArtista: object) => ({
-              id: idArtista,
-            }))
-          },
-          tags: {
-            connect: tagsArray.map((tagId: object) => ({ id: tagId })),
-          },
-        }
-      }).then((album) => {
-        prisma.music
+      prisma.album
         .create({
           data: {
             nome,
             artista,
-            url: songUrl,
-            duracao,
-            data_lanc: date.toISOString(),
             image_url: imageUrl,
+            data_lanc: date.toISOString(),
             artistaId: {
               connect: artistaIdArray.map((idArtista: object) => ({
                 id: idArtista,
@@ -95,19 +84,39 @@ class MusicController {
             tags: {
               connect: tagsArray.map((tagId: object) => ({ id: tagId })),
             },
-            albumId: album.id
           },
         })
-        .then((music) => {
-          res
-            .status(201)
-            .json({ message: "Música criada com sucesso!", music: music });
-        })
-        .catch((error) => {
-          console.error(error);
-          throw new ApiError("Não foi possível criar a música", 500, res);
+        .then((album) => {
+          prisma.music
+            .create({
+              data: {
+                nome,
+                artista,
+                url: songUrl,
+                duracao,
+                data_lanc: date.toISOString(),
+                image_url: imageUrl,
+                artistaId: {
+                  connect: artistaIdArray.map((idArtista: object) => ({
+                    id: idArtista,
+                  })),
+                },
+                tags: {
+                  connect: tagsArray.map((tagId: object) => ({ id: tagId })),
+                },
+                albumId: album.id,
+              },
+            })
+            .then((music) => {
+              res
+                .status(201)
+                .json({ message: "Música criada com sucesso!", music: music });
+            })
+            .catch((error) => {
+              console.error(error);
+              throw new ApiError("Não foi possível criar a música", 500, res);
+            });
         });
-      })      
     });
   }
 
@@ -128,7 +137,6 @@ class MusicController {
 
       if (decoded && decoded.cargo) {
         const userCargo = decoded.cargo;
-        
 
         if (userCargo === "USUARIO") {
           throw new UnauthorizedError(
@@ -194,14 +202,14 @@ class MusicController {
         if (Array.isArray(tags) && tags.length === 0) {
           await prisma.music.update({
             where: {
-              id
+              id,
             },
             data: {
               tags: {
-                set: []
-              }
-            }
-          })
+                set: [],
+              },
+            },
+          });
         }
 
         const updatedMusic = await prisma.music.update({
@@ -214,8 +222,8 @@ class MusicController {
               select: {
                 id: true,
                 nome: true,
-                email: true
-              }
+                email: true,
+              },
             },
             artistaId: {
               select: {
@@ -257,7 +265,6 @@ class MusicController {
 
       if (decoded && decoded.cargo) {
         const userCargo = decoded.cargo;
-        
 
         if (userCargo === "USUARIO") {
           throw new UnauthorizedError(
@@ -304,73 +311,98 @@ class MusicController {
   async listSongs(req: Request, res: Response) {
     const search = req.query.search;
     const id = req.params.id;
-      try {
-        let songs;
 
-        if (search) {
-          songs = await prisma.music.findMany({
-            include: {
-              playlist: true,
-              artistaId: {
-                select: {
-                  id: true,
+    try {
+      let songs;
+
+      if (id) {
+        songs = await prisma.music.findMany({
+          include: {
+            playlist: true,
+            artistaId: {
+              select: {
+                id: true,
+              },
+            },
+            tags: true,
+            usuarioGostou: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+          where: {
+            id: {
+              equals: parseInt(id, 10),
+            },
+          },
+        });
+      } else if (search) {
+        songs = await prisma.music.findMany({
+          include: {
+            playlist: true,
+            artistaId: {
+              select: {
+                id: true,
+              },
+            },
+            tags: true,
+            usuarioGostou: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+          where: {
+            OR: [
+              {
+                nome: {
+                  contains: search.toString(),
+                  mode: "insensitive",
                 },
               },
-              tags: true,
-              usuarioGostou: {
-                select: {
-                  id: true,
-                  nome: true,
-                  email: true
-                }
-              }
-            },
-            where: {
-              OR: [
-                {
-                    nome: {
-                        contains: search.toString(),
-                        mode: 'insensitive'
-                    },
-                    artista: {
-                        contains: search.toString(),
-                        mode: 'insensitive'
-                    },
-                }
-              ],
-              id: {
-                equals: parseInt(id, 10)
-              }
-            },
-          });
-        } else {
-          songs = await prisma.music.findMany({
-            include: {
-              tags: true,
-              artistaId: {
-                select: {
-                  id: true,
+              {
+                artista: {
+                  contains: search.toString(),
+                  mode: "insensitive",
                 },
               },
-              playlist: true,
-              usuarioGostou: {
-                select: {
-                  id: true,
-                  nome: true,
-                  email: true
-                }
-              }
+            ],
+          },
+        });
+      } else {
+        songs = await prisma.music.findMany({
+          include: {
+            tags: true,
+            artistaId: {
+              select: {
+                id: true,
+              },
             },
-          });
-        }
-
-        res.status(200).json({ songs });
-      } catch (error) {
-        console.error(error);
-        throw new ApiError("Erro de requisição", 500, res);
+            playlist: true,
+            usuarioGostou: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        });
       }
+
+      res.status(200).json({ songs });
+    } catch (error) {
+      console.error(error);
+      throw new ApiError("Erro de requisição", 500, res);
     }
-    /* USE APENAS SE SOUBER OQ ESTÀ FAZENDO!
+  }
+
+  /* USE APENAS SE SOUBER OQ ESTÀ FAZENDO!
 
     async deleteAll(req: Request, res: Response) {
       try {
@@ -399,6 +431,6 @@ class MusicController {
         res.send("Erro aí! \n" + error);
       }
     }   */
-  }
+}
 
 export default new MusicController();
