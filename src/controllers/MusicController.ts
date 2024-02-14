@@ -358,20 +358,14 @@ class MusicController {
             },
           },
           where: {
-            OR: [
-              {
-                nome: {
-                  contains: search.toString(),
-                  mode: "insensitive",
-                },
-              },
-              {
-                artista: {
-                  contains: search.toString(),
-                  mode: "insensitive",
-                },
-              },
-            ],
+            nome: {
+              contains: search.toString(),
+              mode: "insensitive",
+            },
+            artista: {
+              contains: search.toString(),
+              mode: "insensitive",
+            },
           },
         });
       } else {
