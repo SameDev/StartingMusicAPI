@@ -45,7 +45,7 @@ model Tags {
 
 model Music {
   id            Int            @id @default(autoincrement())
-  nome          String         @db.VarChar(25)
+  nome          String         @db.VarChar(100)
   artista       String
   url           String?
   duracao       String         @db.VarChar(5)
