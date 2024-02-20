@@ -64,4 +64,4 @@ app.use((req, res, next) => {
 app.use(compression);
 
 app.use(errorMiddleware);
-app.listen(3334, () => console.log("Server running on port 3333"));
+app.listen(3333, () => console.log("Server running on port 3333"));
