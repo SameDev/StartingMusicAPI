@@ -59,7 +59,7 @@ app.use("/playback", playbackRouters);
 app.use("/album", albumRouters)
 
 app.use((req, res, next) => {
-  res.status(404).send("Não existe esta requisição na API!");
+  res.status(404).json("Não existe esta requisição na API!");
 });
 app.use(compression);
 
