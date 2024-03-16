@@ -69,7 +69,9 @@ class TagsController {
     });
   }
   async updateTag(req: Request, res: Response) {
-    const nome = req.params.nome;
+    const id = parseInt(req.params.id);
+
+    const {nome} = req.body;
 
     const token = req.headers.authorization;
     if (!token) {
@@ -103,7 +105,7 @@ class TagsController {
       prisma.tags
         .findFirst({
           where: {
-            nome,
+            id,
           },
         })
         .then((result) => {
