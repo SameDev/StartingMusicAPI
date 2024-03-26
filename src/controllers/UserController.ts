@@ -171,8 +171,8 @@ class UserController {
   
       const user = await prisma.user.findUnique({ where: { email }, include: {tags: true} });
 
-      console.log('cadastro')
-  
+      console.log('login')
+
       if (user) {
         const verifyPass = await bcrypt.compare(senha, user.senha);
   
