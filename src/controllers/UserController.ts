@@ -98,7 +98,7 @@ class UserController {
   
 
   async createUser(req: Request, res: Response) {
-    const { nome, email, senha, data_nasc, cargo, tags, desc, banner } = req.body;
+    const { nome, email, senha, data_nasc, cargo, tags, desc, banner, foto_perfil } = req.body;
 
 
     const date = new Date(data_nasc)
@@ -145,7 +145,8 @@ class UserController {
                   tags: {
                     connect: tagsArray.map((tagId: object) => ({ id: tagId })),
                   },
-                  banner_perfil: banner
+                  banner_perfil: banner,
+                  foto_perfil
                 }
               })
               .then(() => {
