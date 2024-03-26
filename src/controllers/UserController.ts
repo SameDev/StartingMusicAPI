@@ -100,14 +100,14 @@ class UserController {
   async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc, cargo, tags, desc, banner } = req.body;
 
-    console.log(data_nasc)
 
     const date = new Date(data_nasc)
-
-    console.log(date)
+    
     if (cargo === "ADMIN") {
       return res.status(501).json("Você não tem permissão para isso!")
     }
+
+    console.log(tags)
 
     const tagsArray = Array.isArray(tags)
     ? req.body.tags
@@ -119,6 +119,8 @@ class UserController {
         res
       );
     }
+
+    console.log(tagsArray)
 
     prisma.user
       .findUnique({
