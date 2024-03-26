@@ -100,7 +100,7 @@ class UserController {
   async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc, cargo, tags, desc, banner, foto_perfil } = req.body;
 
-
+    console.log('cadastro')
     const date = new Date(data_nasc)
     
     if (cargo === "ADMIN") {
@@ -170,6 +170,8 @@ class UserController {
       const { email, senha } = req.body;
   
       const user = await prisma.user.findUnique({ where: { email }, include: {tags: true} });
+
+      console.log('cadastro')
   
       if (user) {
         const verifyPass = await bcrypt.compare(senha, user.senha);
