@@ -100,14 +100,11 @@ class UserController {
   async createUser(req: Request, res: Response) {
     const { nome, email, senha, data_nasc, cargo, tags, desc, banner, foto_perfil } = req.body;
 
-    console.log('cadastro')
     const date = new Date(data_nasc)
     
     if (cargo === "ADMIN") {
       return res.status(501).json("Você não tem permissão para isso!")
     }
-
-    console.log(tags)
 
     const tagsArray = Array.isArray(tags)
     ? req.body.tags
@@ -149,8 +146,25 @@ class UserController {
                   foto_perfil
                 }
               })
-              .then(() => {
-                return res.status(201).json("Usuário criado com sucesso");
+              .then((user) => {
+                res.status(201).json("Usuário criado com sucesso");
+
+                  const token = jwt.sign(
+                    { id: user.id, cargo: user.cargo },
+                    process.env.JWT_PASS ?? "",
+                    {
+                      expiresIn: "8h",
+                    }
+                  );
+          
+                  const { senha: _, ...userLogin } = user;
+          
+                  res.setHeader("Authorization", `${token}`);
+
+                  return res.status(200).json({
+                    Messagem: "Token Criado!",
+                    user: userLogin,
+                  });
               });
           });
         }
@@ -171,7 +185,6 @@ class UserController {
   
       const user = await prisma.user.findUnique({ where: { email }, include: {tags: true} });
 
-      console.log('login')
 
       if (user) {
         const verifyPass = await bcrypt.compare(senha, user.senha);
