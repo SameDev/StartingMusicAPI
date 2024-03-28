@@ -147,7 +147,6 @@ class UserController {
                 }
               })
               .then((user) => {
-                res.status(201).json("Usuário criado com sucesso");
 
                   const token = jwt.sign(
                     { id: user.id, cargo: user.cargo },
