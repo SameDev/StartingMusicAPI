@@ -71,7 +71,7 @@ class TagsController {
   async updateTag(req: Request, res: Response) {
     const id = parseInt(req.params.id);
 
-    const {nome} = req.body;
+    const { nome } = req.body;
 
     const token = req.headers.authorization;
     if (!token) {
@@ -100,8 +100,6 @@ class TagsController {
         throw new UnauthorizedError("Token inválido", res);
       }
 
-      const { newNome } = req.body;
-
       prisma.tags
         .findFirst({
           where: {
@@ -110,13 +108,10 @@ class TagsController {
         })
         .then((result) => {
           if (result) {
-            if (result.nome == newNome) {
-              res.send("Você não pode atualizar para o mesmo nome!");
-            }
             prisma.tags
               .update({
                 where: {
-                  nome,
+                  id,
                 },
                 data: {
                   nome,
@@ -129,7 +124,7 @@ class TagsController {
                 throw new ApiError(error, 400, res);
               });
           } else {
-            res.send("Você não atualizar uma tag que não existe!");
+            res.send("Você não pode atualizar uma tag que não existe!");
           }
         })
         .catch((error) => {
@@ -137,6 +132,7 @@ class TagsController {
         });
     });
   }
+
 
   async deleteTag(req: Request, res: Response) {
     const tagId = req.params.id;
