@@ -201,56 +201,68 @@ class TagsController {
     const idTags = req.query.id;
     const page = req.query.page ? parseInt(req.query.page.toString(), 10) : 1; // Página atual
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize.toString(), 10) : 10; // Tamanho da página
-  
+
     try {
-      let tags;
-  
-      if (idTags) {
-        const id = parseInt(idTags.toString(), 10);
-  
-        if (id) {
-          tags = await prisma.tags.findUnique({
-            include: {
-              musicas: true,
-              playlist: true,
-            },
-            where: {
-              id,
-            },
-          });
+        let tags;
+        let totalTags;
+
+        if (idTags) {
+            const id = parseInt(idTags.toString(), 10);
+
+            if (id) {
+                tags = await prisma.tags.findUnique({
+                    include: {
+                        musicas: true,
+                        playlist: true,
+                    },
+                    where: {
+                        id,
+                    },
+                });
+            }
         }
-      }
-  
-      if (search) {
-        tags = await prisma.tags.findMany({
-          include: {
-            musicas: true,
-            playlist: true,
-          },
-          where: {
-            nome: {
-              contains: search.toString(),
-              mode: "insensitive",
-            },
-          },
-          skip: (page - 1) * pageSize, // Pular resultados para a paginação
-          take: pageSize, // Tamanho da página
-        });
-      } else {
-        tags = await prisma.tags.findMany({
-          include: {
-            musicas: true,
-            playlist: true,
-          },
-          skip: (page - 1) * pageSize,
-          take: pageSize,
-        });
-      }
-  
-      res.status(200).json({ tags });
+
+        if (search) {
+            tags = await prisma.tags.findMany({
+                include: {
+                    musicas: true,
+                    playlist: true,
+                },
+                where: {
+                    nome: {
+                        contains: search.toString(),
+                        mode: "insensitive",
+                    },
+                },
+                skip: (page - 1) * pageSize, // Pular resultados para a paginação
+                take: pageSize, // Tamanho da página
+            });
+            totalTags = await prisma.tags.count({
+                where: {
+                    nome: {
+                        contains: search.toString(),
+                        mode: "insensitive",
+                    },
+                },
+            });
+        } else {
+            tags = await prisma.tags.findMany({
+                include: {
+                    musicas: true,
+                    playlist: true,
+                },
+                skip: (page - 1) * pageSize,
+                take: pageSize,
+            });
+            totalTags = await prisma.tags.count();
+        }
+
+        const totalPages = Math.ceil(totalTags / pageSize);
+
+        res.status(200).json({ tags, total: totalTags, totalPages });
     } catch (error) {
-      console.error(error);
-      throw new NotFoundError("Ocorreu um erro!", res);
+        console.error(error);
+        throw new NotFoundError("Ocorreu um erro!", res);
     }
   }
 }
