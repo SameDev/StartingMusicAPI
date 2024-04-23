@@ -199,8 +199,8 @@ class TagsController {
   async listTags(req: Request, res: Response) {
     const search = req.query.search;
     const idTags = req.query.id;
-    const page = req.query.page ? parseInt(req.query.page.toString(), 10) : 1; // Página atual
-    const pageSize = req.query.pageSize ? parseInt(req.query.pageSize.toString(), 10) : 10; // Tamanho da página
+    const page = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
+    const pageSize: number | undefined = req.query.pageSize ? parseInt(req.query.pageSize.toString(), 10) : undefined; 
 
     try {
         let tags;
@@ -234,8 +234,8 @@ class TagsController {
                         mode: "insensitive",
                     },
                 },
-                skip: (page - 1) * pageSize, // Pular resultados para a paginação
-                take: pageSize, // Tamanho da página
+                skip: (page - 1) * (pageSize || 0),
+                take: pageSize || undefined,
             });
             totalTags = await prisma.tags.count({
                 where: {
@@ -246,18 +246,28 @@ class TagsController {
                 },
             });
         } else {
-            tags = await prisma.tags.findMany({
-                include: {
-                    musicas: true,
-                    playlist: true,
-                },
-                skip: (page - 1) * pageSize,
-                take: pageSize,
-            });
-            totalTags = await prisma.tags.count();
+            if (!pageSize) {
+                tags = await prisma.tags.findMany({
+                    include: {
+                        musicas: true,
+                        playlist: true,
+                    },
+                });
+                totalTags = await prisma.tags.count();
+            } else {
+                tags = await prisma.tags.findMany({
+                    include: {
+                        musicas: true,
+                        playlist: true,
+                    },
+                    skip: (page - 1) * pageSize,
+                    take: pageSize,
+                });
+                totalTags = await prisma.tags.count();
+            }
         }
 
-        const totalPages = Math.ceil(totalTags / pageSize);
+        const totalPages = Math.ceil(totalTags / (pageSize || 1));
 
         res.status(200).json({ tags, total: totalTags, totalPages });
     } catch (error) {
@@ -266,5 +276,6 @@ class TagsController {
     }
   }
 }
+
 
 export default new TagsController();
