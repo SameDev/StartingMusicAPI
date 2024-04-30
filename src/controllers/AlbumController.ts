@@ -110,9 +110,11 @@ class AlbumController {
               data: {
                 nome: musicaInfo.nome,
                 url: musicaInfo.url,
-                artista: artista, // Adicione esta linha para fornecer o artista para cada música
+                artista: artista,
+                image_url: imageUrl,
                 duracao: musicaInfo.duracao,
                 data_lanc: musicaInfo.data_lanc,
+                artistaId
               },
             });
             return novaMusica;
