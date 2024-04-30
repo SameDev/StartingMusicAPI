@@ -51,8 +51,8 @@ model Music {
   duracao       String         @db.VarChar(5)
   data_lanc     DateTime
   image_url     String?
-  albumId       Int
-  album         Album          @relation(fields: [albumId], references: [id])
+  albumId       Int?
+  album         Album?         @relation(fields: [albumId], references: [id])
   reproducao    Reproducao[]
   visualizacao  Visualizacao[]
   usuarioGostou User[]         @relation("LikedSongs")
