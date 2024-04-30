@@ -110,14 +110,14 @@ class AlbumController {
               data: {
                 nome: musicaInfo.nome,
                 url: musicaInfo.url,
-                artista: musicaInfo.artista,
+                artista: artista, // Adicione esta linha para fornecer o artista para cada música
                 duracao: musicaInfo.duracao,
                 data_lanc: musicaInfo.data_lanc,
               },
             });
             return novaMusica;
           })
-        );
+        );        
         
         // Obtém o ID do álbum após a criação
         const novoAlbum = await prisma.album.create({
