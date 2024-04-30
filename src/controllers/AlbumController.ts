@@ -75,20 +75,20 @@ class AlbumController {
       if (!token) {
         throw new UnauthorizedError("Token não fornecido", res);
       }
-
+  
       jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
         if (err) {
           console.error(err);
           throw new UnauthorizedError("Token inválido", res);
         }
-
+  
         if (!decoded || decoded.cargo === "USUARIO") {
           throw new UnauthorizedError(
             "Você não possui permissões para esta ação!",
             res
           );
         }
-
+  
         const {
           nome,
           artista,
@@ -99,11 +99,11 @@ class AlbumController {
           musicas,
           desc
         } = req.body;
-
+  
         if (!nome || !artista || !imageUrl || !date || !artistaId || !tags || !musicas || !desc) {
           throw new BadRequestError("Todos os campos são obrigatórios", res);
         }
-
+  
         const musicasCriadas = await Promise.all(
           musicas.map(async (musicaInfo: any) => {
             const novaMusica = await prisma.music.create({
@@ -154,7 +154,7 @@ class AlbumController {
             },
           },
         });
-
+  
         res.status(201).json({ album: novoAlbum });
       });
     } catch (error) {
