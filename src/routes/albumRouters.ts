@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/", AlbumController.listAll);
 
-// router.post("/create", ViewsController.createView);
+router.post("/create", AlbumController.create);
 
 export default router;
 

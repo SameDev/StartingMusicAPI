@@ -13,10 +13,10 @@ class AlbumController {
   async listAll(req: Request, res: Response) {
     const search = req.query.search;
     try {
-      let views;
+      let album;
 
       if (search) {
-        views = await prisma.album.findMany({
+        album = await prisma.album.findMany({
           include: {
             playlist: true,
             artistaId: {
@@ -42,7 +42,7 @@ class AlbumController {
           },
         });
       } else {
-        views = await prisma.album.findMany({
+        album = await prisma.album.findMany({
           include: {
             playlist: true,
             artistaId: {
@@ -61,7 +61,7 @@ class AlbumController {
           },
         });
 
-        res.status(200).json({ views });
+        res.status(200).json({ album });
       }
     } catch (error) {
       console.log(error);
