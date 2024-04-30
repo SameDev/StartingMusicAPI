@@ -121,6 +121,7 @@ model Album {
   lancamento    Lancamento @default(SINGLE)
   nome          String
   artista       String
+  desc          String?
   image_url     String?
   data_lanc     DateTime
   musicas       Music[]

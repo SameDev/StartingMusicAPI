@@ -97,13 +97,13 @@ class AlbumController {
           artistaId,
           tags,
           musicas,
+          desc
         } = req.body;
 
-        if (!nome || !artista || !imageUrl || !date || !artistaId || !tags || !musicas) {
+        if (!nome || !artista || !imageUrl || !date || !artistaId || !tags || !musicas || !desc) {
           throw new BadRequestError("Todos os campos são obrigatórios", res);
         }
 
-        // Cria as músicas e retorna uma Promise para cada
         const musicasCriadas = await Promise.all(
           musicas.map(async (musicaInfo: any) => {
             const novaMusica = await prisma.music.create({
@@ -126,6 +126,7 @@ class AlbumController {
             artista,
             image_url: imageUrl,
             data_lanc: date,
+            desc,
             artistaId: {
               connect: { id: artistaId },
             },
