@@ -82,7 +82,7 @@ class AlbumController {
           throw new UnauthorizedError("Token inválido", res);
         }
 
-        if (!decoded || decoded.cargo !== "ADMINISTRADOR") {
+        if (!decoded || decoded.cargo !== "ARTISTA") {
           throw new UnauthorizedError(
             "Você não possui permissões para esta ação!",
             res
