@@ -97,7 +97,8 @@ class AlbumController {
           artistaId,
           tags,
           musicas,
-          desc
+          desc,
+          lancamento
         } = req.body;
   
         if (!nome || !artista || !imageUrl || !date || !artistaId || !tags || !musicas || !desc) {
@@ -133,6 +134,7 @@ class AlbumController {
             image_url: imageUrl,
             data_lanc: date,
             desc,
+            lancamento,
             artistaId: {
               connect: { id: artistaId },
             },
