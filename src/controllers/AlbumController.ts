@@ -114,7 +114,11 @@ class AlbumController {
                 image_url: imageUrl,
                 duracao: musicaInfo.duracao,
                 data_lanc: musicaInfo.data_lanc,
-                artistaId
+                artistaId: {
+                  connect: {
+                    id: artistaId
+                  }
+                }
               },
             });
             return novaMusica;
