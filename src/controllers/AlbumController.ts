@@ -115,6 +115,9 @@ class AlbumController {
                 image_url: imageUrl,
                 duracao: musicaInfo.duracao,
                 data_lanc: musicaInfo.data_lanc,
+                tags: {
+                  connect: tags.map((tagId: number) => ({ id: tagId })),
+                },
                 artistaId: {
                   connect: {
                     id: artistaId
