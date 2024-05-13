@@ -52,6 +52,7 @@ class AlbumController {
               },
             },
             tags: true,
+            musicas: true,
             usuarioGostou: {
               select: {
                 id: true,
