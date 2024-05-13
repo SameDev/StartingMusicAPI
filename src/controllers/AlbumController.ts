@@ -12,28 +12,12 @@ import { Prisma } from "@prisma/client";
 class AlbumController {
   async listAll(req: Request, res: Response) {
     const search = req.query.search;
+  
     try {
-      let album;
-
+      let albums;
+  
       if (search) {
-        album = await prisma.album.findMany({
-          include: {
-            playlist: true,
-            artistaId: {
-              select: {
-                id: true,
-              },
-            },
-            musicas: true,
-            tags: true,
-            usuarioGostou: {
-              select: {
-                id: true,
-                nome: true,
-                email: true,
-              },
-            },
-          },
+        albums = await prisma.album.findMany({
           where: {
             OR: [
               { nome: { contains: search.toString(), mode: "insensitive" } },
@@ -41,16 +25,9 @@ class AlbumController {
               { id: { equals: parseInt(search.toString(), 10) } },
             ],
           },
-        });
-      } else {
-        album = await prisma.album.findMany({
           include: {
             playlist: true,
-            artistaId: {
-              select: {
-                id: true,
-              },
-            },
+            artistaId: true,
             tags: true,
             musicas: true,
             usuarioGostou: {
@@ -62,14 +39,31 @@ class AlbumController {
             },
           },
         });
-
-        res.status(200).json({ album });
+      } else {
+        albums = await prisma.album.findMany({
+          include: {
+            playlist: true,
+            artistaId: true,
+            tags: true,
+            musicas: true,
+            usuarioGostou: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        });
       }
+  
+      res.status(200).json({ albums });
     } catch (error) {
       console.log(error);
       new ApiError("Ocorreu um erro interno na API!", 500, res);
     }
   }
+  
 
   async create(req: Request, res: Response) {
     try {
