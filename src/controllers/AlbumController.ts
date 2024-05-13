@@ -24,6 +24,7 @@ class AlbumController {
                 id: true,
               },
             },
+            musicas: true,
             tags: true,
             usuarioGostou: {
               select: {
