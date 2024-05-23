@@ -12,6 +12,7 @@ import { Prisma } from "@prisma/client";
 class AlbumController {
   async listAll(req: Request, res: Response) {
     const search = req.query.search;
+    const id = parseInt(req.params.id);
 
     try {
       let albums;
@@ -39,7 +40,29 @@ class AlbumController {
             },
           },
         });
-      } else {
+      } 
+      if (id) {
+        albums = await prisma.album.findMany({
+          where: {
+            id
+          },
+          include: {
+            playlist: true,
+            artistaId: true,
+            tags: true,
+            musicas: true,
+            usuarioGostou: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          }
+
+        })
+      }
+      else {
         albums = await prisma.album.findMany({
           include: {
             playlist: true,
