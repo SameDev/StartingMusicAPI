@@ -13,11 +13,34 @@ class AlbumController {
   async listAll(req: Request, res: Response) {
     const search = req.query.search;
     const id = parseInt(req.params.id);
-
+  
     try {
       let albums;
-
-      if (search) {
+  
+      if (id) {
+        albums = await prisma.album.findUnique({
+          where: {
+            id
+          },
+          include: {
+            playlist: true,
+            artistaId: true,
+            tags: true,
+            musicas: true,
+            usuarioGostou: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          }
+        });
+  
+        if (!albums) {
+          throw new NotFoundError("Álbum não encontrado", res);
+        }
+      } else if (search) {
         albums = await prisma.album.findMany({
           where: {
             OR: [
@@ -40,29 +63,7 @@ class AlbumController {
             },
           },
         });
-      } 
-      if (id) {
-        albums = await prisma.album.findMany({
-          where: {
-            id
-          },
-          include: {
-            playlist: true,
-            artistaId: true,
-            tags: true,
-            musicas: true,
-            usuarioGostou: {
-              select: {
-                id: true,
-                nome: true,
-                email: true,
-              },
-            },
-          }
-
-        })
-      }
-      else {
+      } else {
         albums = await prisma.album.findMany({
           include: {
             playlist: true,
@@ -79,13 +80,14 @@ class AlbumController {
           },
         });
       }
-
+  
       res.status(200).json({ albums });
     } catch (error) {
       console.error(error);
       new ApiError("Ocorreu um erro interno na API!", 500, res);
     }
   }
+  
 
   async create(req: Request, res: Response) {
     try {
