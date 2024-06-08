@@ -4,7 +4,7 @@ import AlbumController from "../controllers/AlbumController";
 const router = Router();
 
 router.get("/", AlbumController.listAll);
-router.get("/#id", AlbumController.listAll);
+router.get("/:id", AlbumController.listAll);
 
 router.post("/create", AlbumController.create);
 router.delete("/delete", AlbumController.delete);
