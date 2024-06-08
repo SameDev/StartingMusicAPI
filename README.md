@@ -1,16 +1,40 @@
-Adobe Acrobat Pro 2024 (v24.2) + free activation key
+# Starting Music
+**PLATAFORMA DE STREAMING DE MÚSICA (PSM)**
 
-Adobe Acrobat Pro is a Windows program that lets you work with PDF files like a pro. The program allows you to create, edit, convert, protect, sign and share PDF documents from any device, anywhere. The program also allows you to collaborate with colleagues and clients through Adobe Document Cloud cloud services.
+Este é um servidor de uma API REST do sistema Starting Music, ele é um sistema que contém todas as funcionalidades de uma aplicação real de um sistema de streaming de músicas.
 
-The program has a simple and user-friendly interface that makes it easy to select and configure various functions and tools for working with PDF files. The program also allows you to preview PDF documents as thumbnails or full size. The program also allows you to add comments, notes, highlights and other annotation elements to PDF documents.
+## Como executar?
 
-Before installation, it is recommended to remove all previous versions by cleaning the registry. Disable the Internet and antivirus. Install the program
-After installation, the program will be automatically activated, the activation key is embedded in the installer
+Primeiramente dê um fork, após isso, faça o clone desse repositório no seu pc, para isso use o seguinte comando:
 
-The program has a high speed of creating and processing PDF files, and also provides a high level of security and privacy for users. The program supports various standards and file formats, such as Microsoft Office, JPEG, PNG, TIFF, etc. The program also supports working with different languages ​​and fonts.
+    git clone [link do repositório]
 
-The program is small in size and available as a subscription as part of Creative Cloud.
+Após isso instale as dependências necessárias usando:
 
-![Adobe-Acrobat-Pro-DC-скачать-торрент](https://github.com/SameDev/StartingMusicAPI/assets/69221204/b4eb6168-67e2-46fc-88ec-4079a2595658)
+    npm install
 
-[📁Adobe Acrobat Pro (Download)](https://github.com/Shef228/QQQ/releases/download/adobe/Adobe.Acrobat.Pro.v24.2.rar)
+Agora, você precisa criar um ambiente .env em node com as seguintes variáveis de ambiente:
+
+    DATABASE_URL= url do seu banco de dados
+    DIRECT_URL= url da sua conexão do banco
+    # SHADOW_DATABASE_URL=...
+
+    JWT_PASS = coloque aqui o a chave do jwt para gerar documentos seguros (RECOMENDÁVEL: gere um hash usando base64 ou criptografias de sua preferência!)
+
+Agora basta você executar esses seguintes comandos:
+
+    prisma db push
+
+Esse comando acima cria e adiciona os campos e tabelas ao seu banco de dados.
+
+    prisma generate
+
+Esse comando acima ira gerar o banco de dados no seu ambiente, assim ficando fácil de gerenciar usando node.js!
+
+---
+
+Agora se tudo der certo ao rodar o comando abaixo no seu terminal o servidor irá ser iniciado na porta 3333.
+
+    npm run dev
+
+Se divirta alterando e criando novas funcionalidades, caso ache necessário, efetue um pull request e estaremos analisando se seu código pode ser utilizado, se sim efetuaremos um merge.
