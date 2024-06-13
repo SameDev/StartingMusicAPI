@@ -568,7 +568,16 @@ class UserController {
         album: {
           include: {
             tags: true,
-            musicas: true
+            musicas: {
+              select: {
+                duracao: true,
+                nome: true,
+                data_lanc: true,
+                artista: true,
+                url: true,
+                image_url: true,
+              }
+            },
           }
         }
       },
