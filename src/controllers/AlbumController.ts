@@ -26,7 +26,16 @@ class AlbumController {
             playlist: true,
             artistaId: true,
             tags: true,
-            musicas: true,
+            musicas: {
+              select: {
+                duracao: true,
+                nome: true,
+                data_lanc: true,
+                artista: true,
+                url: true,
+                image_url: true,
+              }
+            },
             usuarioGostou: {
               select: {
                 id: true,
@@ -53,7 +62,16 @@ class AlbumController {
             playlist: true,
             artistaId: true,
             tags: true,
-            musicas: true,
+            musicas: {
+              select: {
+                duracao: true,
+                nome: true,
+                data_lanc: true,
+                artista: true,
+                url: true,
+                image_url: true,
+              }
+            },
             usuarioGostou: {
               select: {
                 id: true,
@@ -69,7 +87,16 @@ class AlbumController {
             playlist: true,
             artistaId: true,
             tags: true,
-            musicas: true,
+            musicas: {
+              select: {
+                duracao: true,
+                nome: true,
+                data_lanc: true,
+                artista: true,
+                url: true,
+                image_url: true,
+              }
+            },
             usuarioGostou: {
               select: {
                 id: true,
