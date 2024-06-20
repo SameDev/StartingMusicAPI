@@ -95,6 +95,7 @@ class AlbumController {
                 artista: true,
                 url: true,
                 image_url: true,
+                id: true
               }
             },
             usuarioGostou: {

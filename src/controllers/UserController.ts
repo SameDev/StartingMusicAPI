@@ -576,6 +576,7 @@ class UserController {
                 artista: true,
                 url: true,
                 image_url: true,
+                id: true
               }
             },
           }
