@@ -6,7 +6,7 @@ const router = Router();
 router.get("/", AlbumController.listAll);
 router.get("/:id", AlbumController.listAll);
 
-router.post("/:id/addSong", AlbumController.addAlbumSong)
+router.post("/:id/add-song", AlbumController.addAlbumSong)
 
 router.post("/create", AlbumController.create);
 router.delete("/delete", AlbumController.delete);
