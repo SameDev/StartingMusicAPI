@@ -227,6 +227,84 @@ class AlbumController {
     }
   }
 
+  async addAlbumSong(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization;
+      if (!token) {
+        throw new UnauthorizedError("Token não fornecido", res);
+      }
+  
+      jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
+        if (err) {
+          console.error(err);
+          throw new UnauthorizedError("Token inválido", res);
+        }
+  
+        if (!decoded || decoded.cargo === "USUARIO") {
+          throw new UnauthorizedError(
+            "Você não possui permissões para esta ação!",
+            res
+          );
+        }
+  
+        const albumId = parseInt(req.params.id);
+        if (isNaN(albumId)) {
+          throw new BadRequestError("ID do álbum inválido", res);
+        }
+  
+        const album = await prisma.album.findUnique({
+          where: { id: albumId },
+        });
+  
+        if (!album) {
+          throw new NotFoundError("Álbum não encontrado", res);
+        }
+  
+        const {
+          nome,
+          artista,
+          imageUrl,
+          duracao,
+          data_lanc,
+          tags,
+          url
+        } = req.body;
+  
+        if (!nome || !artista || !imageUrl || !duracao || !data_lanc || !tags || !url) {
+          throw new BadRequestError("Todos os campos são obrigatórios", res);
+        }
+  
+        const novaMusica = await prisma.music.create({
+          data: {
+            nome,
+            artista,
+            image_url: imageUrl,
+            duracao,
+            data_lanc,
+            tags: {
+              connect: tags.map((tagId: number) => ({ id: tagId })),
+            },
+            album: {
+              connect: {
+                id: albumId,
+              },
+            },
+            url
+          },
+        });
+  
+        res.status(201).json({ musica: novaMusica });
+      });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof ApiError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        new ApiError("Ocorreu um erro interno na API!", 500, res);
+      }
+    }
+  }
+
   async delete(req: Request, res: Response) {
     try {
       const token = req.headers.authorization;
