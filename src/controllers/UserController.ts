@@ -14,40 +14,41 @@ import { Album, Music } from "@prisma/client";
 class UserController {
   async updateUser(req: Request, res: Response) {
     try {
-      const { nome, email, cargo, data_nasc, senha, url, tags, desc, banner } = req.body;
+      const { nome, email, cargo, data_nasc, senha, url, tags, desc, banner } =
+        req.body;
       const id = req.params.id;
       const userId = parseInt(id, 10);
-  
+
       const token = req.headers.authorization;
       if (!token) {
         throw new UnauthorizedError("Token não fornecido", res);
       }
-  
+
       const decoded = jwt.verify(token, process.env.JWT_PASS ?? "");
-  
+
       const user = await getUserByIdDB(userId, res);
       const newEmail = email === user.email ? user.email : email;
-  
+
       const existingUser = await prisma.user.findUnique({
         where: { email: newEmail },
       });
-  
+
       if (existingUser && existingUser.id !== userId) {
         throw new BadRequestError("Já existe um usuário com este email", res);
       }
-  
+
       const newName = nome || user.nome;
       const newDataNasc = data_nasc || user.data_nasc;
       const newSenha = senha ? await bcrypt.hash(senha, 10) : senha;
       const newUrl = url || user.foto_perfil;
       const newDesc = desc || user.desc;
       const newBanner = banner || user.banner_perfil;
-  
+
       let newTags: any = [];
       if (Array.isArray(tags) && tags.length > 0) {
         newTags = tags.map((tagId: object) => ({ id: tagId }));
       }
-  
+
       await prisma.user.update({
         where: { id: userId },
         data: {
@@ -64,7 +65,7 @@ class UserController {
           banner_perfil: newBanner,
         },
       });
-  
+
       res.status(200).json({
         message: "Usuário atualizado com sucesso!",
         user: {
@@ -81,113 +82,111 @@ class UserController {
       });
     } catch (error: any) {
       console.error(error);
-  
+
       if (error instanceof ApiError) {
         return res.status(error.statusCode).json({
           message: error.message,
           maisInfo: error.message,
         });
       }
-  
+
       return res.status(500).json({
         message: "Erro interno do servidor",
         maisInfo: error.message,
       });
     }
   }
-  
 
   async createUser(req: Request, res: Response) {
-    const { nome, email, senha, data_nasc, cargo, tags, desc, banner, foto_perfil } = req.body;
+    const {
+      nome,
+      email,
+      senha,
+      data_nasc,
+      cargo,
+      tags,
+      desc,
+      banner,
+      foto_perfil,
+    } = req.body;
 
-    const date = new Date(data_nasc)
-    
+    const date = new Date(data_nasc);
+
     if (cargo === "ADMIN") {
-      return res.status(501).json("Você não tem permissão para isso!")
+      return res.status(501).json("Você não tem permissão para isso!");
     }
 
-    const tagsArray = Array.isArray(tags)
-    ? req.body.tags
-    : JSON.parse(req.body.tags) || [];
+    const tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags) || [];
 
     if (typeof tagsArray != "object") {
-      throw new BadRequestError(
-        "Tipo de dado incorreto para tags, use um array",
-        res
-      );
+      return res
+        .status(400)
+        .json("Tipo de dado incorreto para tags, use um array");
     }
 
-    console.log(tagsArray)
-
-    prisma.user
-      .findUnique({
+    try {
+      const existingUser = await prisma.user.findUnique({
         where: {
           email,
         },
-      })
-      .then((user) => {
-        if (user) {
-          throw new BadRequestError("Já existe um usuário com esse email", res);
-        } else {
-          bcrypt.hash(senha, 10).then((hashPassword: string) => {
-            prisma.user
-              .create({
-                data: {
-                  nome,
-                  email,
-                  desc,
-                  senha: hashPassword,
-                  data_nasc: date.toISOString(),
-                  cargo,
-                  tags: {
-                    connect: tagsArray.map((tagId: object) => ({ id: tagId })),
-                  },
-                  banner_perfil: banner,
-                  foto_perfil
-                }
-              })
-              .then((user) => {
-
-                  const token = jwt.sign(
-                    { id: user.id, cargo: user.cargo },
-                    process.env.JWT_PASS ?? "",
-                    {
-                      expiresIn: "8h",
-                    }
-                  );
-          
-                  const { senha: _, ...userLogin } = user;
-          
-                  res.setHeader("Authorization", `${token}`);
-
-                  return res.status(200).json({
-                    Messagem: "Token Criado!",
-                    user: userLogin,
-                  });
-              });
-          });
-        }
-      })
-      .catch((error) => {
-        if (error instanceof BadRequestError) {
-          return res.status(400).json({ Error: "Já existe esse úsuario!" });
-        } else {
-          console.error(error);
-          return res.status(500).json({ Error: "Erro interno do servidor" });
-        }
       });
+
+      if (existingUser) {
+        return res.status(400).json("Já existe um usuário com esse email");
+      }
+
+      const hashPassword = await bcrypt.hash(senha, 10);
+
+      const user = await prisma.user.create({
+        data: {
+          nome,
+          email,
+          desc,
+          senha: hashPassword,
+          data_nasc: date.toISOString(),
+          cargo,
+          tags: {
+            connect: tagsArray.map((tagId: string) => ({ id: tagId })),
+          },
+          banner_perfil: banner,
+          foto_perfil,
+        },
+      });
+
+      const token = jwt.sign(
+        { id: user.id, cargo: user.cargo },
+        process.env.JWT_PASS ?? "",
+        {
+          expiresIn: "8h",
+        }
+      );
+
+      const { senha: _, ...userLogin } = user;
+
+      res.setHeader("Authorization", `${token}`);
+
+      return res.status(200).json({
+        Messagem: "Token Criado!",
+        user: userLogin,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ Error: "Erro interno do servidor" });
+    }
   }
 
   async login(req: Request, res: Response) {
     try {
       const { email, senha } = req.body;
-  
-      const user = await prisma.user.findUnique({ where: { email }, include: {tags: true} });
 
+      const user = await prisma.user.findUnique({
+        where: { email },
+        include: { tags: true },
+      });
 
       if (user) {
         const verifyPass = await bcrypt.compare(senha, user.senha);
-  
+
         if (verifyPass) {
           const token = jwt.sign(
             { id: user.id, cargo: user.cargo },
@@ -196,11 +195,11 @@ class UserController {
               expiresIn: "8h",
             }
           );
-  
+
           const { senha: _, ...userLogin } = user;
-  
+
           res.setHeader("Authorization", `${token}`);
-  
+
           return res.status(200).json({
             Messagem: "Token Criado!",
             user: userLogin,
@@ -213,14 +212,14 @@ class UserController {
       }
     } catch (error: any) {
       console.error(error);
-  
+
       if (error instanceof ApiError) {
         return res.status(error.statusCode).json({
           message: error.message,
           maisInfo: error.message,
         });
       }
-  
+
       // Erro desconhecido, tratamento padrão
       return res.status(500).json({
         message: "Erro interno do servidor",
@@ -228,8 +227,6 @@ class UserController {
       });
     }
   }
-  
-  
 
   async getAllUsers(req: Request, res: Response) {
     prisma.user
@@ -244,7 +241,7 @@ class UserController {
           gostei: true,
           playlist: true,
           tags: true,
-          desc: true
+          desc: true,
         },
       })
       .then((user) => {
@@ -499,7 +496,7 @@ class UserController {
             foto_perfil: true,
             data_nasc: true,
             gostei: true,
-            playlist: true
+            playlist: true,
           },
         });
 
@@ -526,31 +523,28 @@ class UserController {
     const idParam = req.params.id;
     const id = parseInt(idParam);
 
-    
-  try {
-    const userMusics = await prisma.user.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        musica: {
-          include: {
-            tags: true
-          }
-        }
-      },
-    
-    });
+    try {
+      const userMusics = await prisma.user.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          musica: {
+            include: {
+              tags: true,
+            },
+          },
+        },
+      });
 
-    if (userMusics) {
-      const musics: Music[] = userMusics.musica || {};
-      res.json(musics);
-    } else {
-      res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
-  } catch (error) {
-      throw new ApiError("Ocorreu um erro!\n"+error, 500, res);
-      
+      if (userMusics) {
+        const musics: Music[] = userMusics.musica || {};
+        res.json(musics);
+      } else {
+        res.status(404).json({ error: "Usuário não encontrado." });
+      }
+    } catch (error) {
+      throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
     }
   }
 
@@ -558,45 +552,42 @@ class UserController {
     const idParam = req.params.id;
     const id = parseInt(idParam);
 
-    
-  try {
-    const userAlbums = await prisma.user.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        album: {
-          include: {
-            tags: true,
-            musicas: {
-              select: {
-                duracao: true,
-                nome: true,
-                data_lanc: true,
-                artista: true,
-                url: true,
-                image_url: true,
-                id: true
-              }
+    try {
+      const userAlbums = await prisma.user.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          album: {
+            include: {
+              tags: true,
+              musicas: {
+                select: {
+                  duracao: true,
+                  nome: true,
+                  data_lanc: true,
+                  artista: true,
+                  url: true,
+                  image_url: true,
+                  id: true,
+                },
+              },
             },
-          }
-        }
-      },
-    
-    });
+          },
+        },
+      });
 
-    if (userAlbums) {
-      const album: Album[] = userAlbums.album || {};
-      res.json(album);
-    } else {
-      res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
-  } catch (error) {
-      throw new ApiError("Ocorreu um erro!\n"+error, 500, res);
-      
+      if (userAlbums) {
+        const album: Album[] = userAlbums.album || {};
+        res.json(album);
+      } else {
+        res.status(404).json({ error: "Usuário não encontrado." });
+      }
+    } catch (error) {
+      throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
     }
   }
-  
+
   async getLikedSongs(req: Request, res: Response) {
     const idParam = req.params.id;
     const id = parseInt(idParam);
@@ -604,11 +595,11 @@ class UserController {
     try {
       const userLikedMusics = await prisma.user.findUnique({
         where: {
-          id
+          id,
         },
         select: {
-          gostei: true
-        }
+          gostei: true,
+        },
       });
 
       if (userLikedMusics) {
@@ -616,7 +607,7 @@ class UserController {
         res.json(musics);
       }
     } catch (error) {
-      throw new ApiError("Ocorreu um erro!\n"+error, 500, res);
+      throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
     }
   }
 }
