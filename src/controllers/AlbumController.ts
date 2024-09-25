@@ -267,7 +267,8 @@ class AlbumController {
           duracao,
           data_lanc,
           tags,
-          url
+          url,
+          artistaId
         } = req.body;
   
         if (!nome || !artista || !imageUrl || !duracao || !data_lanc || !tags || !url) {
@@ -281,6 +282,7 @@ class AlbumController {
             image_url: imageUrl,
             duracao,
             data_lanc,
+            artistaId,
             tags: {
               connect: tags.map((tagId: number) => ({ id: tagId })),
             },
