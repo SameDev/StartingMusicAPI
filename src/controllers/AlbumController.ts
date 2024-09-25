@@ -311,41 +311,42 @@ class AlbumController {
       if (!token) {
         throw new UnauthorizedError("Token não fornecido", res);
       }
-
+  
       jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
         if (err) {
           console.error(err);
           throw new UnauthorizedError("Token inválido", res);
         }
-
+  
         if (!decoded || decoded.cargo === "USUARIO") {
           throw new UnauthorizedError(
             "Você não possui permissões para esta ação!",
             res
           );
         }
-
+  
         const albumId = parseInt(req.params.id);
         if (isNaN(albumId)) {
           throw new BadRequestError("ID do álbum inválido", res);
         }
-
+  
         const album = await prisma.album.findUnique({
           where: { id: albumId },
         });
-
+  
         if (!album) {
           throw new NotFoundError("Álbum não encontrado", res);
         }
-
+  
+        await prisma.music.deleteMany({
+          where: { albumId: albumId },
+        });
+  
         await prisma.album.delete({
           where: { id: albumId },
         });
-        await prisma.music.deleteMany({
-          where: { albumId: albumId }
-        })
-
-        res.status(200).json({ message: "Álbum deletado com sucesso" });
+  
+        res.status(200).json({ message: "Álbum e suas músicas deletados com sucesso" });
       });
     } catch (error) {
       console.error(error);
@@ -356,6 +357,7 @@ class AlbumController {
       }
     }
   }
+  
 
   async update(req: Request, res: Response) {
     try {
