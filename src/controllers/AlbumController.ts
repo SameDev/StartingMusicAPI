@@ -341,6 +341,9 @@ class AlbumController {
         await prisma.album.delete({
           where: { id: albumId },
         });
+        await prisma.music.deleteMany({
+          where: { albumId: albumId }
+        })
 
         res.status(200).json({ message: "Álbum deletado com sucesso" });
       });
