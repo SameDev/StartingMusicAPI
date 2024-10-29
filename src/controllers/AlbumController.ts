@@ -241,10 +241,7 @@ class AlbumController {
         }
   
         if (!decoded || decoded.cargo === "USUARIO") {
-          throw new UnauthorizedError(
-            "Você não possui permissões para esta ação!",
-            res
-          );
+          throw new UnauthorizedError("Você não possui permissões para esta ação!", res);
         }
   
         const albumId = parseInt(req.params.id);
@@ -271,7 +268,7 @@ class AlbumController {
           artistaId
         } = req.body;
   
-        if (!nome || !artista || !imageUrl || !duracao || !data_lanc || !tags || !url) {
+        if (!nome || !artista || !imageUrl || !duracao || !data_lanc || !tags || !url || !artistaId) {
           throw new BadRequestError("Todos os campos são obrigatórios", res);
         }
   
@@ -282,7 +279,7 @@ class AlbumController {
             image_url: imageUrl,
             duracao,
             data_lanc,
-            artistaId,
+            artistaId, 
             tags: {
               connect: tags.map((tagId: number) => ({ id: tagId })),
             },
@@ -306,6 +303,7 @@ class AlbumController {
       }
     }
   }
+  
 
   async delete(req: Request, res: Response) {
     try {

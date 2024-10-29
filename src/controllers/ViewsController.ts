@@ -10,7 +10,7 @@ import {
 } from "../helpers/api-erros";
 
 class ViewsController {
-  async createView(req: Request, res: Response) {
+  async listView(req: Request, res: Response) {
     try {
       const views = await prisma.visualizacao.findMany();
 
@@ -20,7 +20,7 @@ class ViewsController {
       throw new ApiError("Erro de requisição", 500, res);
     }
   }
-  listView(req: Request, res: Response) {
+  createView(req: Request, res: Response) {
     try {
       const { userId, songId, data } = req.body;
 

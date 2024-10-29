@@ -68,11 +68,11 @@ model Comments {
   id            Int     @id @default(autoincrement())
   nome          String  @db.VarChar(25)
   userId        Int
-  autor         User    @relation(fields: [userId], references: [id])
-  musicas       Music[] @relation("MusicToComments")
-  usuarioGostou User[]  @relation("LikedComments")
   resposta      String?
   conteudo      String?
+  autor         User    @relation(fields: [userId], references: [id])
+  usuarioGostou User[]  @relation("LikedComments")
+  musicas       Music[] @relation("MusicToComments")
 
   @@map("tb_comments")
 }
@@ -86,8 +86,8 @@ model Playlist {
   userId    Int
   criador   User     @relation(fields: [userId], references: [id])
   musicas   Music[]  @relation("MusicToPlaylist")
-  tags      Tags[]   @relation("PlaylistToTags")
   album     Album[]  @relation("PlaylistToAlbum")
+  tags      Tags[]   @relation("PlaylistToTags")
 
   @@map("tb_playlists")
 }
@@ -121,9 +121,9 @@ model Album {
   lancamento    Lancamento @default(SINGLE)
   nome          String
   artista       String
-  desc          String?
   image_url     String?
   data_lanc     DateTime
+  desc          String?
   musicas       Music[]
   artistaId     User[]     @relation("AlbumToUser")
   tags          Tags[]     @relation("AlbumsToTags")
@@ -143,4 +143,9 @@ enum Cargo {
   USUARIO
   ADMIN
   ARTISTA
+}
+
+enum QueryMode {
+  default
+  insensitive
 }

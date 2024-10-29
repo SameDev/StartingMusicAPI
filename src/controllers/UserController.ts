@@ -9,7 +9,7 @@ import {
   NotFoundError,
   ApiError,
 } from "../helpers/api-erros";
-import { Album, Music } from "@prisma/client";
+import { Album, Cargo, Music } from "@prisma/client";
 
 class UserController {
   async updateUser(req: Request, res: Response) {
@@ -606,6 +606,22 @@ class UserController {
         const musics: Music[] = userLikedMusics.gostei || {};
         res.json(musics);
       }
+    } catch (error) {
+      throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
+    }
+  }
+
+  async getArtists(req: Request, res: Response) {
+    try {
+      const artists = await prisma.user.findMany({
+        where: {
+          cargo: 'ARTISTA',
+        },
+      });
+
+      const sanitizedArtists = artists.map(({ senha, ...rest }) => rest);
+
+      res.status(200).json(sanitizedArtists);
     } catch (error) {
       throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
     }
