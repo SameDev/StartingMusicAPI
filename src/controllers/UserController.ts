@@ -24,6 +24,13 @@ class UserController {
         throw new UnauthorizedError("Token não fornecido", res);
       }
 
+       const maxNameLength = 25; 
+          if (nome.length > maxNameLength) {
+            return res
+              .status(400)
+              .json(`O nome excede o limite de ${maxNameLength} caracteres.`);
+          }
+
       const decoded = jwt.verify(token, process.env.JWT_PASS ?? "");
 
       const user = await getUserByIdDB(userId, res);
@@ -98,82 +105,89 @@ class UserController {
   }
 
   async createUser(req: Request, res: Response) {
-    const {
-      nome,
-      email,
-      senha,
-      data_nasc,
-      cargo,
-      tags,
-      desc,
-      banner,
-      foto_perfil,
-    } = req.body;
+  const {
+    nome,
+    email,
+    senha,
+    data_nasc,
+    cargo,
+    tags,
+    desc,
+    banner,
+    foto_perfil,
+  } = req.body;
 
-    const date = new Date(data_nasc);
+  const date = new Date(data_nasc);
 
-    if (cargo === "ADMIN") {
-      return res.status(501).json("Você não tem permissão para isso!");
-    }
-
-    const tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags) || [];
-
-    if (typeof tagsArray != "object") {
-      return res
-        .status(400)
-        .json("Tipo de dado incorreto para tags, use um array");
-    }
-
-    try {
-      const existingUser = await prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
-
-      if (existingUser) {
-        return res.status(400).json("Já existe um usuário com esse email");
-      }
-
-      const hashPassword = await bcrypt.hash(senha, 10);
-
-      const user = await prisma.user.create({
-        data: {
-          nome,
-          email,
-          desc,
-          senha: hashPassword,
-          data_nasc: date.toISOString(),
-          cargo,
-          tags: {
-            connect: tagsArray.map((tagId: string) => ({ id: tagId })),
-          },
-          banner_perfil: banner,
-          foto_perfil,
-        },
-      });
-
-      const token = jwt.sign(
-        { id: user.id, cargo: user.cargo },
-        process.env.JWT_PASS ?? "",
-        {
-          expiresIn: "8h",
-        }
-      );
-
-      const { senha: _, ...userLogin } = user;
-
-      res.setHeader("Authorization", `${token}`);
-
-      return res.status(200).json({
-        Messagem: "Token Criado!",
-        user: userLogin,
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ Error: "Erro interno do servidor" });
-    }
+  if (cargo === "ADMIN") {
+    return res.status(501).json("Você não tem permissão para isso!");
   }
+
+  const tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags) || [];
+
+  if (typeof tagsArray !== "object") {
+    return res
+      .status(400)
+      .json("Tipo de dado incorreto para tags, use um array");
+  }
+
+  const maxNameLength = 25; 
+  if (nome.length > maxNameLength) {
+    return res
+      .status(400)
+      .json(`O nome excede o limite de ${maxNameLength} caracteres.`);
+  }
+
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json("Já existe um usuário com esse email");
+    }
+
+    const hashPassword = await bcrypt.hash(senha, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        nome,
+        email,
+        desc,
+        senha: hashPassword,
+        data_nasc: date.toISOString(),
+        cargo,
+        tags: {
+          connect: tagsArray.map((tagId: string) => ({ id: tagId })),
+        },
+        banner_perfil: banner,
+        foto_perfil,
+      },
+    });
+
+    const token = jwt.sign(
+      { id: user.id, cargo: user.cargo },
+      process.env.JWT_PASS ?? "",
+      {
+        expiresIn: "8h",
+      }
+    );
+
+    const { senha: _, ...userLogin } = user;
+
+    res.setHeader("Authorization", `${token}`);
+
+    return res.status(200).json({
+      Messagem: "Token Criado!",
+      user: userLogin,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ Error: "Erro interno do servidor" });
+  }
+}
 
   async login(req: Request, res: Response) {
     try {
