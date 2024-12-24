@@ -15,6 +15,7 @@ import playbackRouters from "./routes/playbackRouters";
 import albumRouters from "./routes/albumRouters";
 import commentsRouters from './routes/commentRouters';
 import searchRouters from './routes/searchRouters';
+import viewsRouters from './routes/viewsRouter';
 
 
 const app = express();
@@ -61,6 +62,7 @@ app.use("/playback", playbackRouters);
 app.use("/album", albumRouters);
 app.use("/comments", commentsRouters);
 app.use("/search", searchRouters)
+app.use("/views", viewsRouters)
 
 app.use((req, res, next) => {
   res.status(404).json("Não existe esta requisição na API!");
