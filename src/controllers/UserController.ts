@@ -632,7 +632,7 @@ class UserController {
         where: {
           cargo: 'ARTISTA',
         },
-        select: {
+        include: {
           tags: true
         }
       });
