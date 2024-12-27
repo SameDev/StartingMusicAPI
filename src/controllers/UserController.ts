@@ -583,6 +583,7 @@ class UserController {
                   artista: true,
                   url: true,
                   image_url: true,
+                  tags: true,
                   id: true,
                 },
               },
@@ -631,6 +632,9 @@ class UserController {
         where: {
           cargo: 'ARTISTA',
         },
+        select: {
+          tags: true
+        }
       });
 
       const sanitizedArtists = artists.map(({ senha, ...rest }) => rest);
