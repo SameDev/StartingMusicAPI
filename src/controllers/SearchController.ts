@@ -26,6 +26,9 @@ class DynamicSearchController {
           where: {
             OR: [{ nome: { contains: query, mode: "insensitive" } }],
           },
+          include: {
+            musicas: true, 
+          },
         }),
         prisma.music.findMany({
           where: {
@@ -52,11 +55,16 @@ class DynamicSearchController {
         albumNome: music.album ? music.album.nome : null, 
       }));
 
+      const albumResultsWithMusics = albumResults.map(album => ({
+        ...album,
+        musicas: album.musicas || [],
+      }));
+
       return res.status(200).json({
         users: sanitizedUserResults,
         music: musicResultsWithAlbumNames,
         playlists: playlistResults,
-        albums: albumResults,
+        albums: albumResultsWithMusics,
       });
     } catch (error) {
       console.error(error);
