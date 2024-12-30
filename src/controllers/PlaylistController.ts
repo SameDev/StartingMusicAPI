@@ -13,13 +13,14 @@ class PlaylistController {
   async listPlaylist(req: Request, res: Response) {
     const search = req.query.search;
     const idPlaylist = req.query.id;
-    
+    const userId = parseInt(req.params.id, 10);
+  
     try {
       let playlists;
-
+  
       if (idPlaylist) {
         const id = parseInt(idPlaylist.toString(), 10);
-
+  
         if (id) {
           playlists = await prisma.playlist.findUnique({
             include: {
@@ -38,8 +39,8 @@ class PlaylistController {
           });
         }
       }
-      
-      
+  
+      // Verifica se o usuário forneceu um ID de playlist específico
       if (search) {
         playlists = await prisma.playlist.findMany({
           include: {
@@ -57,6 +58,7 @@ class PlaylistController {
               contains: search.toString(),
               mode: "insensitive",
             },
+            userId, // Filtra pela playlist do usuário logado
           },
         });
       } else {
@@ -71,9 +73,12 @@ class PlaylistController {
               },
             },
           },
+          where: {
+            userId
+          },
         });
       }
-
+  
       const resultQuery = Object.assign({}, playlists);
       res.send({ playlists: resultQuery });
     } catch (error) {
