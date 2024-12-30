@@ -625,25 +625,42 @@ class UserController {
       throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
     }
   }
-
   async getArtists(req: Request, res: Response) {
     try {
       const artists = await prisma.user.findMany({
         where: {
-          cargo: 'ARTISTA',
+          OR: [
+            { cargo: 'ARTISTA' },
+            { cargo: 'ADMIN' }
+          ]
+        },
+        orderBy: {
+          data_nasc: 'desc'
         },
         include: {
-          tags: true
-        }
+          tags: true,
+          musica: {
+            where: {
+              data_lanc: {
+                lt: new Date()
+              },
+            },
+            orderBy: {
+              data_lanc: 'desc',
+            },
+          },
+        },
       });
-
-      const sanitizedArtists = artists.map(({ senha, ...rest }) => rest);
-
+  
+      const filteredArtists = artists.filter(artist => artist.musica.length > 0);
+  
+      const sanitizedArtists = filteredArtists.map(({ senha, musica, ...rest }) => rest);
+  
       res.status(200).json(sanitizedArtists);
     } catch (error) {
       throw new ApiError("Ocorreu um erro!\n" + error, 500, res);
     }
-  }
+  } 
 }
 
 export default new UserController();
