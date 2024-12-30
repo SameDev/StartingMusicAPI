@@ -11,76 +11,25 @@ import {
 
 class PlaylistController {
   async listPlaylist(req: Request, res: Response) {
-    const search = req.query.search;
-    const idPlaylist = req.query.id;
-    const userId = parseInt(req.params.id, 10);
-  
+    const userId = parseInt(req.params.userId, 10);
     try {
-      let playlists;
-  
-      if (idPlaylist) {
-        const id = parseInt(idPlaylist.toString(), 10);
-  
-        if (id) {
-          playlists = await prisma.playlist.findUnique({
-            include: {
-              tags: true,
-              musicas: true,
-              criador: {
-                select: {
-                  nome: true,
-                  id: true,
-                },
-              },
-            },
-            where: {
-              id,
-            },
-          });
-        }
-      }
-  
-      // Verifica se o usuário forneceu um ID de playlist específico
-      if (search) {
-        playlists = await prisma.playlist.findMany({
-          include: {
-            tags: true,
-            musicas: true,
-            criador: {
-              select: {
-                nome: true,
-                id: true,
-              },
+      const playlists = await prisma.playlist.findMany({
+        where: {
+          userId
+        },
+        include: {
+          tags: true,
+          musicas: true,
+          criador: {
+            select: {
+              nome: true,
+              id: true,
             },
           },
-          where: {
-            nome: {
-              contains: search.toString(),
-              mode: "insensitive",
-            },
-            userId, // Filtra pela playlist do usuário logado
-          },
-        });
-      } else {
-        playlists = await prisma.playlist.findMany({
-          include: {
-            tags: true,
-            musicas: true,
-            criador: {
-              select: {
-                nome: true,
-                id: true,
-              },
-            },
-          },
-          where: {
-            userId
-          },
-        });
-      }
+        },
+      })
   
-      const resultQuery = Object.assign({}, playlists);
-      res.send({ playlists: resultQuery });
+      res.send({ playlists });
     } catch (error) {
       throw new NotFoundError("Ocorreu um erro!", res);
       console.error(error);
