@@ -11,11 +11,11 @@ import {
 
 class PlaylistController {
   async listPlaylist(req: Request, res: Response) {
-    const userId = parseInt(req.params.userId, 10);
+    const id = parseInt(req.params.userId, 10);
     try {
       const playlists = await prisma.playlist.findMany({
         where: {
-          userId
+          userId: id
         },
         include: {
           tags: true,
