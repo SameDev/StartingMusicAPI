@@ -11,11 +11,12 @@ import {
 
 class PlaylistController {
   async listPlaylist(req: Request, res: Response) {
-    const id = parseInt(req.params.userId, 10);
+    const id = req.params.id;
+    const userId = parseInt(id)
     try {
       const playlists = await prisma.playlist.findMany({
         where: {
-          userId: id
+          userId
         },
         include: {
           tags: true,
@@ -31,8 +32,9 @@ class PlaylistController {
   
       res.send({ playlists });
     } catch (error) {
-      throw new NotFoundError("Ocorreu um erro!", res);
       console.error(error);
+      throw new NotFoundError("Ocorreu um erro!", res);
+      
     }
   }
 
