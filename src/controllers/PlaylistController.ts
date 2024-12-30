@@ -83,7 +83,7 @@ class PlaylistController {
   }
 
   async createPlaylist(req: Request, res: Response) {
-    const { nome, descricao, foto, tags } = req.body;
+    const { nome, descricao, foto, tags, userId } = req.body;
 
     const token = req.headers.authorization;
     if (!token) {
@@ -91,16 +91,8 @@ class PlaylistController {
     }
 
     jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
-      const userId = decoded.id;
       if (err) {
         console.error(err);
-        throw new UnauthorizedError("Token inválido", res);
-      }
-      if (decoded && decoded.cargo) {
-        const userCargo = decoded.cargo;
-        
-      } else {
-        console.log(decoded);
         throw new UnauthorizedError("Token inválido", res);
       }
 
@@ -155,17 +147,8 @@ class PlaylistController {
     }
 
     jwt.verify(token, process.env.JWT_PASS ?? "", async (err, decoded: any) => {
-      const userId = decoded.id;
       if (err) {
         console.error(err);
-        throw new UnauthorizedError("Token inválido", res);
-      }
-      if (decoded && decoded.cargo) {
-        const userCargo = decoded.cargo;
-        
-
-      } else {
-        console.log(decoded);
         throw new UnauthorizedError("Token inválido", res);
       }
 
