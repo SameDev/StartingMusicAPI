@@ -21,6 +21,9 @@ class DynamicSearchController {
           where: {
             OR: [{ nome: { contains: query, mode: "insensitive" } }],
           },
+          include: {
+            musicas: true, // Incluir músicas na playlist
+          },
         }),
         prisma.album.findMany({
           where: {
@@ -60,10 +63,15 @@ class DynamicSearchController {
         musicas: album.musicas || [],
       }));
 
+      const playlistResultsWithMusics = playlistResults.map(playlist => ({
+        ...playlist,
+        musicas: playlist.musicas || [],
+      }));
+
       return res.status(200).json({
         users: sanitizedUserResults,
         music: musicResultsWithAlbumNames,
-        playlists: playlistResults,
+        playlists: playlistResultsWithMusics,
         albums: albumResultsWithMusics,
       });
     } catch (error) {
